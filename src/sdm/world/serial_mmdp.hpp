@@ -215,6 +215,10 @@ namespace sdm
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> distribution_serial;
 
+        int current_timestep_;
+
+        std::shared_ptr<State> internal_state_;
+
         /**
          * @brief Initialize Serial State Space
          *

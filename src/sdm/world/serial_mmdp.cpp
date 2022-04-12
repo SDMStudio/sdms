@@ -306,38 +306,66 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number)
+    std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
-        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::getActionSpaceAt");
+        return this->getActionSpace(t);
     }
 
     std::shared_ptr<State> SerialMMDP::reset()
     {
-        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::reset");
+        this->current_timestep_ = 0;
+        this->setInternalState(this->getStartDistribution()->sample());
+        return this->getInternalState();
     }
 
-    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action> serial_action)
     {
-        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::step");
+        return this->step(serial_action, true);
     }
 
-    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action>, bool)
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SerialMMDP::step(std::shared_ptr<Action> serial_action, bool increment_timestep)
     {
-        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::step");
+        double reward = this->getReward(this->getInternalState(), serial_action, this->current_timestep_);
+
+        double cumul = 0.0, proba = 0.0;
+
+        // Get a random number between 0 and 1
+        double epsilon = std::rand() / (double(RAND_MAX));
+
+        // Go over all observations of the lower-level agent
+        for (const auto &next_state : *this->getStateSpace(this->current_timestep_ + 1))
+        {
+            proba = this->getTransitionProbability(this->getInternalState(), serial_action, next_state->toState(), this->current_timestep_);
+
+            cumul += proba;
+            if (epsilon < cumul)
+            {
+                this->setInternalState(next_state->toState());
+                break;
+            }
+        }
+
+        if (increment_timestep)
+            this->current_timestep_++;
+
+        bool is_done = (this->getHorizon() > 0) ? (this->getHorizon() <= this->current_timestep_) : (1000 <= this->current_timestep_);
+
+        return std::make_tuple(this->getInternalState(), std::vector<double>{reward}, is_done);
     }
 
-    void SerialMMDP::setInternalState(std::shared_ptr<State>)
+    void SerialMMDP::setInternalState(std::shared_ptr<State> state)
     {
-        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::setInternalState");
+        this->internal_state_ = state;
     }
 
     std::shared_ptr<State> SerialMMDP::getInternalState() const
     {
-        throw sdm::exception::NotImplementedException("NotImplementedException raised in SerialMMDP::setInternalState");
+        return this->internal_state_;
     }
 
     std::shared_ptr<Action> SerialMMDP::getRandomAction(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t)->sample()->toAction();
     }
+
 } // namespace sdm
