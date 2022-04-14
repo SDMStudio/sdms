@@ -409,7 +409,7 @@ namespace sdm
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
-            else if ((formalism == "occupancy-extensive-mdp") || (formalism == "OccupancyExtensiveMDP") || (formalism == "oext-MDP") || (formalism == "oext-mdp"))
+            else if ((formalism == "sos") || (formalism == "seqoccupancyseq"))
             {
                 // Parse the problem
                 auto problem = sdm::parser::parseMPOMDP(problem_path);
@@ -512,12 +512,6 @@ namespace sdm
             {
                 p_algo = std::make_shared<BackwardInduction>(formalism);
             }
-            else if ((algo_name.find("vi") != string::npos) || (algo_name.find("ValueIteration") != string::npos))
-            {
-                p_algo = makeValueIteration(formalism, value_function_1, init_v1,
-                                            error, store_state, name, time_max,
-                                            type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
-            }
             else if ((algo_name.find("pbvi") != string::npos) || (algo_name.find("PBVI") != string::npos))
             {
                 p_algo = makePBVI(formalism, value_function_1, init_v1,
@@ -528,6 +522,12 @@ namespace sdm
             {
                 std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, true, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                 p_algo = std::make_shared<DFSVI>(formalism, value_function, error, time_max, name);
+            }
+            else if ((algo_name.find("vi") != string::npos) || (algo_name.find("ValueIteration") != string::npos))
+            {
+                p_algo = makeValueIteration(formalism, value_function_1, init_v1,
+                                            error, store_state, name, time_max,
+                                            type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
             }
             else if ((algo_name.find("perseus") != string::npos) || (algo_name.find("Perseus") != string::npos))
             {
