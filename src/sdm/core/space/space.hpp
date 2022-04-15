@@ -16,6 +16,8 @@
 #include <sdm/types.hpp>
 #include <sdm/exception.hpp>
 #include <sdm/core/item.hpp>
+#include <sdm/core/state/state.hpp>
+#include <sdm/core/action/action.hpp>
 #include <sdm/utils/struct/iterator.hpp>
 
 
@@ -26,7 +28,10 @@
 namespace sdm
 {
 
+  template <typename TItem>
   class DiscreteSpace;
+
+  template <typename TItem>
   class MultiDiscreteSpace;
 
   /**
@@ -37,12 +42,13 @@ namespace sdm
    * It gives some useful general methods to use generic spaces in your algorithms. 
    
    */
-  class Space : public std::enable_shared_from_this<Space>
+  template <typename TItem>
+  class BaseSpace : public std::enable_shared_from_this<BaseSpace<TItem>>
   {
   public:
-    using iterator_type = std::shared_ptr<ItemIterator>;
+    using iterator_type = std::shared_ptr<Iterator<TItem>>;
 
-    virtual ~Space() {}
+    virtual ~BaseSpace() {}
 
     /**
      * @brief Check if the space is discrete.
@@ -59,14 +65,14 @@ namespace sdm
      */
     virtual std::vector<number> getDim() const = 0;
 
-    std::shared_ptr<DiscreteSpace> toDiscreteSpace();
+    std::shared_ptr<DiscreteSpace<TItem>> toDiscreteSpace();
     
-    std::shared_ptr<MultiDiscreteSpace> toMultiDiscreteSpace();
+    std::shared_ptr<MultiDiscreteSpace<TItem>> toMultiDiscreteSpace();
 
     /**
      * @brief Sample a random item from the space
      */
-    virtual std::shared_ptr<Item> sample() const { throw sdm::exception::Exception("Cannot sample Abstract space !!!"); }
+    virtual std::shared_ptr<TItem> sample() const { throw sdm::exception::Exception("Cannot sample Abstract space !!!"); }
 
     virtual iterator_type begin() = 0;
     virtual iterator_type end() = 0;
@@ -76,14 +82,19 @@ namespace sdm
      */
     virtual std::string str() const = 0;
 
-    bool operator==(const Space &sp) const;
-    bool operator!=(const Space &sp) const;
+    bool operator==(const BaseSpace &sp) const;
+    bool operator!=(const BaseSpace &sp) const;
 
-    friend std::ostream &
-    operator<<(std::ostream &os, const Space &sp)
+    friend std::ostream &operator<<(std::ostream &os, const BaseSpace<TItem> &sp)
     {
       os << sp.str();
       return os;
     }
   };
+
+  using Space = BaseSpace<std::shared_ptr<Item>>;
+  using StateSpace = BaseSpace<std::shared_ptr<State>>;
+  using ObservationSpace = BaseSpace<std::shared_ptr<Observation>>;
+  using ActionSpace = BaseSpace<std::shared_ptr<Action>>;
+
 } // namespace sdm

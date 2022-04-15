@@ -29,14 +29,15 @@ namespace sdm
      * 
      * In order to instantiate an object of this class, you must provide the constructor method a the list of all available values.
      * 
-     * @tparam std::shared_ptr<Item> The type of each element in the space. 
+     * @tparam std::shared_ptr<TItem> The type of each element in the space. 
      *  
      */
-    class DiscreteSpace : public Space
+    template <typename TItem>
+    class DiscreteSpace : public BaseSpace<TItem>
     {
     public:
-        using value_type = std::shared_ptr<Item>;
-        using iterator_type = Space::iterator_type;
+        using value_type = TItem;
+        using iterator_type = BaseSpace<TItem>::iterator_type;
 
         /**
          * @brief Construct a new Discrete Space object (default)
@@ -49,19 +50,19 @@ namespace sdm
          * 
          * @param items a list of possible items in the space
          */
-        DiscreteSpace(const std::vector<std::shared_ptr<Item>> &items);
+        DiscreteSpace(const std::vector<TItem> &items);
 
         template <typename T>
         DiscreteSpace(const std::vector<T> &items)
         {
-            std::vector<std::shared_ptr<Item>> titems(items.begin(), items.end());
+            std::vector<TItem> titems(items.begin(), items.end());
             *this = DiscreteSpace(titems);
         }
 
         /**
          * @brief Construct a new Discrete Space object from a list initializer
          */
-        DiscreteSpace(std::initializer_list<std::shared_ptr<Item>> vals);
+        DiscreteSpace(std::initializer_list<TItem> vals);
 
         /**
          * @brief Copy constructor
@@ -78,7 +79,7 @@ namespace sdm
         /**
          * @brief Sample a random item from the space
          */
-        std::shared_ptr<Item> sample() const;
+        TItem sample() const;
 
         /**
          * @brief Get the dimension
@@ -93,26 +94,27 @@ namespace sdm
         /**
          * @brief Get all possible items in the space
          */
-        std::vector<std::shared_ptr<Item>> getAll();
+        std::vector<TItem> getAll();
 
         virtual iterator_type begin();
+        
         virtual iterator_type end();
 
         /**
          * @brief Get the index of an item
          */
-        number getItemIndex(const std::shared_ptr<Item> &item) const;
+        number getItemIndex(const TItem &item) const;
 
         /**
          * @brief Get the item at a specific index
          */
-        std::shared_ptr<Item> getItem(number index) const;
+        TItem getItem(number index) const;
 
         /**
          * @brief Get the item at a specific index
          */
         template <typename T>
-        std::shared_ptr<Item> getItemAddress(const T &item_value)
+        TItem getItemAddress(const T &item_value)
         {
             for (const auto &item : *this)
             {
@@ -125,14 +127,14 @@ namespace sdm
         }
 
         /**
-         * @brief Verify is the discrete space contains the std::shared_ptr<Item>;
+         * @brief Verify is the discrete space contains the TItem;
          * 
          * @return true 
          * @return false 
          */
-        bool contains(const std::shared_ptr<Item> &) const;
+        bool contains(const TItem &) const;
 
-        int find(const std::shared_ptr<Item> &item) const;
+        int find(const TItem &item) const;
 
         std::string str() const;
         std::string short_str() const;
@@ -147,7 +149,7 @@ namespace sdm
         }
 
     protected:
-        using items_bimap = boost::bimaps::bimap<number, std::shared_ptr<Item>>;
+        using items_bimap = boost::bimaps::bimap<number, TItem>;
         using items_bimap_value = items_bimap::value_type;
 
         /** @brief number of possible items in the space (ex: [5, 12] --> 8 items) **/
@@ -158,10 +160,10 @@ namespace sdm
         // items_bimap all_items_;
 
 
-        // std::unordered_map<std::shared_ptr<Item>, number> map_item_to_int;
+        // std::unordered_map<TItem, number> map_item_to_int;
 
         /** @brief the list of possible items without their index **/
-        std::vector<std::shared_ptr<Item>> list_items_;
+        std::vector<TItem> list_items_;
 
         /**
         *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
@@ -171,5 +173,8 @@ namespace sdm
 
         bool store_items_ = true;
     };
+
+    using DiscreteStateSpace = DiscreteSpace<std::shared_ptr<State>>;
+    using DiscreteActionSpace = DiscreteSpace<std::shared_ptr<Action>>;
 
 } // namespace sdm

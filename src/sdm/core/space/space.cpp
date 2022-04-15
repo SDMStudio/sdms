@@ -5,29 +5,34 @@
 namespace sdm
 {
 
-    bool Space::isContinuous() const
+    template <typename TItem>
+    bool BaseSpace<TItem>::isContinuous() const
     {
         return !(this->isDiscrete());
     }
 
-    bool Space::operator==(const Space &sp) const
+    template <typename TItem>
+    bool BaseSpace<TItem>::operator==(const BaseSpace &sp) const
     {
         return (this->str() == sp.str());
     }
 
-    bool Space::operator!=(const Space &sp) const
+    template <typename TItem>
+    bool BaseSpace<TItem>::operator!=(const BaseSpace &sp) const
     {
         return !(this->operator==(sp));
     }
 
-    std::shared_ptr<DiscreteSpace> Space::toDiscreteSpace()
+    template <typename TItem>
+    std::shared_ptr<DiscreteSpace<TItem>> BaseSpace<TItem>::toDiscreteSpace()
     {
-        return std::static_pointer_cast<DiscreteSpace>(this->shared_from_this());
+        return std::static_pointer_cast<DiscreteSpace<TItem>>(this->shared_from_this());
     }
 
-    std::shared_ptr<MultiDiscreteSpace> Space::toMultiDiscreteSpace()
+    template <typename TItem>
+    std::shared_ptr<MultiDiscreteSpace<TItem>> BaseSpace<TItem>::toMultiDiscreteSpace()
     {
-        return std::static_pointer_cast<MultiDiscreteSpace>(this->shared_from_this());
+        return std::static_pointer_cast<MultiDiscreteSpace<TItem>>(this->shared_from_this());
     }
 
 } // namespace sdm

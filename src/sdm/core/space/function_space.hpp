@@ -13,6 +13,7 @@
 #include <vector>
 
 #include <sdm/types.hpp>
+#include <sdm/core/space/space.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/variations.hpp>
 
@@ -24,12 +25,9 @@ namespace sdm
      * @tparam TFunction The type of function to generate.
      */
     template <typename TFunction>
-    class FunctionSpace : public DiscreteSpace
+    class FunctionSpace : public DiscreteSpace<TFunction>
     {
     protected:
-        // typedef boost::bimaps::bimap<number, TFunction> funct_bimap;
-        // typedef typename funct_bimap::value_type funct_bimap_value;
-
         using value_type = TFunction;
         using input_type = typename TFunction::input_type;
         using output_type = typename TFunction::output_type;
@@ -37,19 +35,19 @@ namespace sdm
         /**
          * @brief The input space 
          */
-        std::shared_ptr<Space> input_space_;
+        std::shared_ptr<BaseSpace<input_type>> input_space_;
 
         /**
          * @brief The vector of output spaces (possibly one output space for each input space). In case output space are similar for all input, use the adequate constructor.
          */
-        std::vector<std::shared_ptr<Space>> output_space_;
+        std::vector<std::shared_ptr<BaseSpace<output_type>>> output_space_;
 
-        std::shared_ptr<Space> action_space;
+        std::shared_ptr<BaseSpace<output_type>> action_space;
 
     public:
         using iterator_type = DiscreteSpace::iterator_type;
 
-        FunctionSpace(const std::shared_ptr<Space> &input_space, const std::shared_ptr<Space> &output_space, bool store_functions = false, const std::shared_ptr<Space>& action_space = nullptr);
+        FunctionSpace(const std::shared_ptr<BaseSpace<input_type>> &input_space, const std::shared_ptr<BaseSpace<output_type>> &output_space, bool store_functions = false, const std::shared_ptr<BaseSpace<output_type>>& action_space = nullptr);
 
         /**
          * @brief Construct a new Function Space object
