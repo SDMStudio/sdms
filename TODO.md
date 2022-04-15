@@ -36,6 +36,7 @@
 - [ ] (ext-oMDP -> oext-MDP) utiliser référence sur états simultanés suivant pour le greedy et backup
   - je ne suis pas 100% sûre de l'implémentation - à vérifier avant dans lancer les expés
 - [x] installation Mac OSX  
+- [ ] Enlever le set2vector
 
 ### Tests
 

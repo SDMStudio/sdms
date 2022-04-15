@@ -124,9 +124,7 @@ namespace sdm
 
     size_t OccupancyStateSerial::hash(double precision) const
     {
-        size_t seed = OccupancyState::hash(precision);
-        // sdm::hash_combine(seed, this->h);
-        return seed;
+        return  OccupancyState::hash(precision);
     }
 
 
@@ -138,27 +136,7 @@ namespace sdm
 
     bool OccupancyStateSerial::isEqual(const OccupancyStateSerial &other, double precision) const
     {
-
-        // if (this->h != other.h)
-        // {
-        //     return false;
-        // }
-        // std::cout << "areEqual=";
-        
-        // if (this->actions != other.actions)
-        // {
-        //     std::cout << "FALSE =! actions"<<std::endl;
-        //     for (auto jhist : other.actions)
-        //     std::cout << jhist.first << " - "<< jhist.second << std::endl;
-        //     std::cout << this->actions.size() << std::endl;
-        //     return false;
-        // }
-        // else
-        // {
-            auto eq = OccupancyState::isEqual(other, precision);
-        //     std::cout << eq << std::endl;
-            return eq;
-        // }
+            return OccupancyState::isEqual(other, precision);
     }
 
     bool OccupancyStateSerial::isEqual(const std::shared_ptr<State> &other, double precision) const
