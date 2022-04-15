@@ -23,7 +23,7 @@ namespace sdm
      *
      */
     template <typename TBetaVector>
-    class PWLCQValueFunction : public QValueFunction, public PWLCValueFunctionInterface
+    class SequentialPWLCQValueFunction : public QValueFunction, public PWLCValueFunctionInterface
     {
 
     public:
@@ -38,7 +38,7 @@ namespace sdm
         {
             virtual bool operator()(const std::shared_ptr<State> &left, const std::shared_ptr<State> &right) const
             {
-                return left->isEqual(right, PWLCQValueFunction::GRANULARITY);
+                return left->isEqual(right, SequentialPWLCQValueFunction::GRANULARITY);
             }
         };
 
@@ -46,7 +46,7 @@ namespace sdm
         {
             virtual bool operator()(const std::shared_ptr<State> &state) const
             {
-                return state->hash(PWLCQValueFunction::GRANULARITY);
+                return state->hash(SequentialPWLCQValueFunction::GRANULARITY);
             }
         };
 
@@ -61,7 +61,7 @@ namespace sdm
          * @param action the action selection
          * @param update_rule the update operator
          */
-        PWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
+        SequentialPWLCQValueFunction(const std::shared_ptr<SolvableByDP> &world,
                            const std::shared_ptr<Initializer> &initializer = nullptr,
                            const std::shared_ptr<ActionSelectionInterface> &action = nullptr,
                            const std::shared_ptr<PWLCQUpdateRule> &update_rule = nullptr);
@@ -135,7 +135,7 @@ namespace sdm
          */
         virtual std::string str() const;
 
-        friend std::ostream &operator<<(std::ostream &os, PWLCQValueFunction &vf)
+        friend std::ostream &operator<<(std::ostream &os, SequentialPWLCQValueFunction &vf)
         {
             os << vf.str();
             return os;
