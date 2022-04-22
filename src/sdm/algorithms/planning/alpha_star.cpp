@@ -119,13 +119,13 @@ namespace sdm
                     double cost;
                     for (const auto &action : *action_space)
                     {
-                        auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), h);
+                        auto observation_space = getWorld()->getObservationSpaceAt(state, action, h);
 
-                        cost = getWorld()->getDiscount(h) * getWorld()->getReward(state, action->toAction(), h);
+                        cost = getWorld()->getDiscount(h) * getWorld()->getReward(state, action, h);
 
                         for (const auto &observation : *observation_space)
                         {
-                            auto [next_state, proba] = getWorld()->getNextState(state, action->toAction(), observation->toObservation(), h);
+                            auto [next_state, proba] = getWorld()->getNextState(state, action, observation, h);
 
                             this->map_element_to_alpha_item.at(h + 1).emplace(next_state, std::make_shared<AlphaStarItem>(next_state, std::numeric_limits<double>::max(), std::numeric_limits<double>::max(), h + 1));
 

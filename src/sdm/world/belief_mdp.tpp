@@ -254,7 +254,7 @@ namespace sdm
         for (const auto &observation : *accessible_observation_space)
         {
             // Compute next state
-            auto [next_state, state_transition_proba] = this->getNextState(belief, action, observation->toObservation(), t);
+            auto [next_state, state_transition_proba] = this->getNextState(belief, action, observation, t);
 
 
             // Update the next expected value at the next state
@@ -291,7 +291,7 @@ namespace sdm
         auto accessible_observation_space = this->getObservationSpaceAt(this->current_state_, action, this->step_);
         for (auto observation : *accessible_observation_space)
         {
-            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, observation->toObservation(), this->step_);
+            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, observation, this->step_);
 
             cumul += prob;
             if (epsilon < cumul)
@@ -308,7 +308,7 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<Action> BaseBeliefMDP<TBelief>::getRandomAction(const std::shared_ptr<State> &, number t)
     {
-        return this->mdp->getActionSpace(t)->sample()->toAction();
+        return this->mdp->getActionSpace(t)->sample();
     }
 
     // ------------------------------------------------------

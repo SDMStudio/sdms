@@ -12,7 +12,7 @@ namespace sdm
 
     SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp, Config config) : mdp(mdp)
     {
-        this->initial_state_ = this->mdp->getStartDistribution()->sample()->toState();
+        this->initial_state_ = this->mdp->getStartDistribution()->sample();
     }
 
     SolvableByMDP::SolvableByMDP(Config config)
@@ -48,11 +48,11 @@ namespace sdm
     //     auto observation_space = this->getObservationSpaceAt(state,action,t);
     //     for (const auto &next_state : *observation_space)
     //     {
-    //         double tmp = this->mdp->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
+    //         double tmp = this->mdp->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
     //         if (tmp > max)
     //         {
     //             max = tmp;
-    //             argmax = next_state->toState();
+    //             argmax = next_state;
     //         }
     //     }
     //     return argmax;

@@ -110,7 +110,7 @@ namespace sdm
                             auto obs_agent_i = std::static_pointer_cast<JointObservation>(observation)->get(agent);
                             res << obs_space->getSpace(agent)->getItemIndex(obs_agent_i) << " ";
                         }
-                        res << ": " << this->getObservationProbability(next_state, action->toAction(), next_state, observation, 0) << std::endl;
+                        res << ": " << this->getObservationProbability(next_state, action, next_state, observation, 0) << std::endl;
                     }
                 }
             }

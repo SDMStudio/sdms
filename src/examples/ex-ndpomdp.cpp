@@ -51,7 +51,7 @@ int main(int argc, char **argv)
     // {
     //     for (const auto &a : *mpomdp_from_ndpomdp->getActionSpace(0))
     //     {
-    //         std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s->toState(), a->toAction()) << std::endl;
+    //         std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s, a) << std::endl;
     //     }
     // }
 

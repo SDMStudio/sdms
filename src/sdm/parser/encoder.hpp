@@ -67,7 +67,7 @@ namespace sdm
         auto start_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         for (const auto &pair_state_proba : *start_distrib__)
         {
-          start_distribution->setProbability(state_space->getItem(pair_state_proba.first)->toState(), pair_state_proba.second);
+          start_distribution->setProbability(state_space->getItem(pair_state_proba.first), pair_state_proba.second);
         }
 
         // // Encodes the state dynamics
@@ -123,7 +123,7 @@ namespace sdm
         auto start_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         for (const auto &pair_state_proba : *start_distrib__)
         {
-          start_distribution->setProbability(state_space->getItem(pair_state_proba.first)->toState(), pair_state_proba.second);
+          start_distribution->setProbability(state_space->getItem(pair_state_proba.first), pair_state_proba.second);
         }
 
         // // Encodes the state dynamics
@@ -173,7 +173,7 @@ namespace sdm
         auto start_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         for (const auto &pair_state_proba : *start_distrib__)
         {
-          start_distribution->setProbability(state_space->getItem(pair_state_proba.first)->toState(), pair_state_proba.second);
+          start_distribution->setProbability(state_space->getItem(pair_state_proba.first), pair_state_proba.second);
         }
 
         // // Encodes the state dynamics
@@ -291,7 +291,7 @@ namespace sdm
         auto start_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         for (const auto &pair_state_proba : *start_distrib__)
         {
-          start_distribution->setProbability(state_space->getItem(pair_state_proba.first)->toState(), pair_state_proba.second);
+          start_distribution->setProbability(state_space->getItem(pair_state_proba.first), pair_state_proba.second);
         }
 
         // // Encodes the state dynamics

@@ -82,8 +82,8 @@ namespace sdm
     //         {
     //             for (const auto &state : *selectStates(t))
     //             {
-    //                 value_function_2->updateValueAt(state->toState(), t);
-    //                 max_error = std::max(std::abs(value_function_1->getValueAt(state->toState(), t) - value_function_2->getValueAt(state->toState(), t)), max_error);
+    //                 value_function_2->updateValueAt(state, t);
+    //                 max_error = std::max(std::abs(value_function_1->getValueAt(state, t) - value_function_2->getValueAt(state, t)), max_error);
     //             }
     //         }
     //     } while !stop();

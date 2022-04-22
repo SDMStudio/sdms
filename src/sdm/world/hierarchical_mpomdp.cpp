@@ -98,7 +98,7 @@ namespace sdm
             }
             list_possible_joint_hierarchical_observation.push_back(joint_hierarchical_observation);
             // Add mapping from basic joint observation to hierarchical joint observation
-            this->bimap_classic_to_hierarchical_obs.insert(obs_bimap_value(joint_observation->toObservation(), joint_hierarchical_observation));
+            this->bimap_classic_to_hierarchical_obs.insert(obs_bimap_value(joint_observation, joint_hierarchical_observation));
         }
         this->joint_observation_space_ = std::make_shared<DiscreteObservationSpace>(list_possible_joint_hierarchical_observation);
 

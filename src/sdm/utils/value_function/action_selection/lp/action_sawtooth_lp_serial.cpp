@@ -133,7 +133,7 @@ namespace sdm
         // Go over all actions
         for (const auto &u : *serial_mpomdp->getActionSpace(t))
         {
-            auto action = u->toAction();
+            auto action = u;
             for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
                 //<! 1.c.4 get variable a(u|o) and set constant
@@ -171,8 +171,8 @@ namespace sdm
         //     for (const auto &action : *underlying_problem->getActionSpace(t))
         //     {
         //         //<! 1.c.4 get variable a(u|o) and set constant
-        //         recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), indiv_history, agent_id))
-        //         con[index].setLinearCoef(var[recover], - this->getQValueRealistic(state, joint_history, action->toAction(), next_state, next_observation, probability, difference));
+        //         recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, indiv_history, agent_id))
+        //         con[index].setLinearCoef(var[recover], - this->getQValueRealistic(state, joint_history, action, next_state, next_observation, probability, difference));
         //     }
 
         //     // <! \omega_k(x',o') * BigM
@@ -207,7 +207,7 @@ namespace sdm
         // Go over all actions
         for (const auto &u : *serial_mpomdp->getActionSpace(t))
         {
-            auto action = u->toAction();
+            auto action = u;
             for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, indiv_history, agent_id));

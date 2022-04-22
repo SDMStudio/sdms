@@ -58,7 +58,7 @@ namespace sdm
 
             std::shared_ptr<Action> RobotBin::getRandomAction(const std::shared_ptr<State> &, number)
             {
-                return this->action_space_->sample()->toAction();
+                return this->action_space_->sample();
             }
 
             std::shared_ptr<State> RobotBin::reset()

@@ -87,7 +87,7 @@ namespace sdm
 
             for (const auto &element : *mdp->getStateSpace(0))
             {
-                auto state = element->toState();
+                auto state = element;
                 hsvi_mdp->setInitialState(state);
                 algorithm->solve();
             }

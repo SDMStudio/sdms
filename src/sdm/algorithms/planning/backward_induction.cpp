@@ -50,17 +50,17 @@ namespace sdm
                 auto action_space = getWorld()->getActionSpaceAt(state, h);
                 for (const auto &action : *action_space)
                 {
-                    resultat_backpropagation = getWorld()->getReward(state, action->toAction(), h);
+                    resultat_backpropagation = getWorld()->getReward(state, action, h);
 
                     // Go over all observations
-                    auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), h);
+                    auto observation_space = getWorld()->getObservationSpaceAt(state, action, h);
                     for (const auto &observation : *observation_space)
                     {
                         // Compute next state and proba
-                        auto [next_state, proba] = getWorld()->getNextState(state, action->toAction(), observation->toObservation(), h);
+                        auto [next_state, proba] = getWorld()->getNextState(state, action, observation, h);
 
                         // Explore next state
-                        this->explore(next_state, cost_so_far + getWorld()->getDiscount(h) * getWorld()->getReward(state, action->toAction(), h), h + 1);
+                        this->explore(next_state, cost_so_far + getWorld()->getDiscount(h) * getWorld()->getReward(state, action, h), h + 1);
 
                         // Update backprop value
                         resultat_backpropagation += getWorld()->getDiscount(h) * proba * this->bound_->getValueAt(next_state, h + 1);

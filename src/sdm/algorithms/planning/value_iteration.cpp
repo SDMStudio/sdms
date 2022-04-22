@@ -74,7 +74,7 @@ namespace sdm
         for (const auto &state : *state_space)
         {
             // Update the value function (backward update)
-            this->updateValue(state->toState(), t);
+            this->updateValue(state, t);
         }
     }
 

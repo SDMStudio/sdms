@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     for (const auto &joint_obs : *mpomdp->getObservationSpace(0))
     {
         std::cout << "\n#> Expand with observation " << *joint_obs << std::endl;
-        joint_history = joint_history->expand(joint_obs->toObservation())->toJointHistory();
+        joint_history = joint_history->expand(joint_obs)->toJointHistory();
         std::cout << "#> Expanded joint history --> " << *joint_history << std::endl;
     }
 

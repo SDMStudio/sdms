@@ -41,10 +41,10 @@ namespace sdm
             RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, std::shared_ptr<AlphaVector>> alpha_ao;
             for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
             {
-                for (const auto &observation : *getWorld()->getObservationSpaceAt(belief_state, action->toAction(), t))
+                for (const auto &observation : *getWorld()->getObservationSpaceAt(belief_state, action, t))
                 {
-                    auto next_belief_state = getWorld()->getNextStateAndProba(belief_state, action->toAction(), observation->toObservation(), t).first;
-                    alpha_ao[action->toAction()][observation->toObservation()] = std::static_pointer_cast<AlphaVector>(this->getValueFunction()->getHyperplaneAt(next_belief_state, t + 1));
+                    auto next_belief_state = getWorld()->getNextStateAndProba(belief_state, action, observation, t).first;
+                    alpha_ao[action][observation] = std::static_pointer_cast<AlphaVector>(this->getValueFunction()->getHyperplaneAt(next_belief_state, t + 1));
                 }
             }
 
@@ -66,21 +66,21 @@ namespace sdm
                     double next_expected_value = 0.0;
 
                     // Go over all hidden state reachable next state
-                    for (const auto &next_state : pomdp->getReachableStates(state, action->toAction(), t))
+                    for (const auto &next_state : pomdp->getReachableStates(state, action, t))
                     {
                         // Go over all observation reachable observation
-                        for (const auto &observation : pomdp->getReachableObservations(state, action->toAction(), next_state, t))
+                        for (const auto &observation : pomdp->getReachableObservations(state, action, next_state, t))
                         {
 
                             // Get the next value of an hyperplane
-                            double next_alpha_value = alpha_ao[action->toAction()][observation]->getValueAt(next_state, nullptr);
+                            double next_alpha_value = alpha_ao[action][observation]->getValueAt(next_state, nullptr);
 
                             // Determine the best next hyperplan for the next belief and compute the dynamics and probability of this best next hyperplan
-                            next_expected_value += next_alpha_value * pomdp->getDynamics(state, action->toAction(), next_state, observation, t);
+                            next_expected_value += next_alpha_value * pomdp->getDynamics(state, action, next_state, observation, t);
                         }
                     }
                     // For each hidden state with associate the value \beta^{new}(x) = r(x,u) + \gamma * \sum_{x_,z_} p(x,u,z_,x_) * best_next_hyperplan(x_);
-                    alpha_a->setValueAt(state, nullptr, pomdp->getReward(state, action->toAction(), t) + this->getWorld()->getDiscount(t) * next_expected_value);
+                    alpha_a->setValueAt(state, nullptr, pomdp->getReward(state, action, t) + this->getWorld()->getDiscount(t) * next_expected_value);
                 }
 
                 alpha_a_value = belief_state->product(alpha_a);

@@ -80,7 +80,7 @@ namespace sdm
     std::shared_ptr<JointAction> OccupancyStateSerial::getFullAction(const std::shared_ptr<MDPInterface> &mdp, Joint<std::shared_ptr<Action>> previous_action, const std::shared_ptr<Action> &last_action, number t)
     {
         previous_action.push_back(last_action);
-        return mdp->getActionSpace()->toDiscreteSpace()->getItemAddress(previous_action)->toAction()->toJointAction();
+        return mdp->getActionSpace()->toDiscreteSpace()->getItemAddress(previous_action)->toJointAction();
     }
 
 

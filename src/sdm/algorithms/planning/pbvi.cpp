@@ -31,7 +31,7 @@ namespace sdm
         auto obs_space = getWorld()->getObservationSpaceAt(state, sampled_action, t);
         for (auto obs_n : *obs_space)
         {
-            std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n->toObservation(), t);
+            std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n, t);
 
             cumul += proba;
             if (epsilon < cumul)

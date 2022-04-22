@@ -90,7 +90,7 @@
 //         // for (const auto couple : this->list_neighboors)
 //         // {
 //         //     JointAction action_couple({jaction->get(couple.first), jaction->get(couple.second)});
-//         //     auto action_couple_addr = this->getSubMPOMDP(couple)->getActionSpace(t)->toDiscreteSpace()->getItemAddress(action_couple)->toAction();
+//         //     auto action_couple_addr = this->getSubMPOMDP(couple)->getActionSpace(t)->toDiscreteSpace()->getItemAddress(action_couple);
 //         //     joint_reward += this->getSubMPOMDP(couple)->getReward(state, action_couple_addr, t);
 //         // }
 //         // return joint_reward;
@@ -287,7 +287,7 @@
 //                 for (const auto &state : *this->state_space)
 //                 {
 //                     std::getline(input_file, line);
-//                     start_distribution_tmp->setProbability(state->toState(), std::stod(line));
+//                     start_distribution_tmp->setProbability(state, std::stod(line));
 //                 }
 //                 this->start_distribution = start_distribution_tmp;
 //             }
@@ -344,8 +344,8 @@
 //                         intermediate.push_back(useless);
 //                     }
 //                     // Get address of a state
-//                     std::shared_ptr<State> key1 = this->getStateSpace(0)->toDiscreteSpace()->getItem(std::stod(intermediate[0]))->toState();
-//                     std::shared_ptr<State> key2 = this->getStateSpace(0)->toDiscreteSpace()->getItem(std::stod(intermediate[1]))->toState();
+//                     std::shared_ptr<State> key1 = this->getStateSpace(0)->toDiscreteSpace()->getItem(std::stod(intermediate[0]));
+//                     std::shared_ptr<State> key2 = this->getStateSpace(0)->toDiscreteSpace()->getItem(std::stod(intermediate[1]));
 
 //                     // Proba of the transition
 //                     double prob = std::stod(intermediate[2]);
@@ -473,9 +473,9 @@
 //     //     std::set<std::shared_ptr<Observation>> set_reachable;
 //     //     for (const auto &obs : *this->getObservationSpace())
 //     //     {
-//     //         if (getObservationProbability(state, action, next_state, obs->toObservation(), t) > 0)
+//     //         if (getObservationProbability(state, action, next_state, obs, t) > 0)
 //     //         {
-//     //             set_reachable.insert(obs->toObservation());
+//     //             set_reachable.insert(obs);
 //     //         }
 //     //     }
 //     //     return set_reachable;
@@ -510,10 +510,10 @@
 //     //     for (auto obs_n : *obs_space)
 //     //     {
 
-//     //         cumul += this->getObservationProbability(state, action, this->getInternalState(), obs_n->toObservation(), t);
+//     //         cumul += this->getObservationProbability(state, action, this->getInternalState(), obs_n, t);
 //     //         if (epsilon < cumul)
 //     //         {
-//     //             return obs_n->toObservation();
+//     //             return obs_n;
 //     //         }
 //     //     }
 //     //     return nullptr;

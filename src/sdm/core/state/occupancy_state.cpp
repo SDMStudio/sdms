@@ -182,9 +182,8 @@ namespace sdm
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (auto jobs : *pomdp->getObservationSpace(t))
+                for (auto joint_observation : *pomdp->getObservationSpace(t))
                 {
-                    auto joint_observation = jobs->toObservation();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
                         // Get the next belief and p(z_{t+1} | b_t, u_t)
@@ -890,9 +889,8 @@ namespace sdm
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (auto jobs : *pomdp->getObservationSpace(t))
+                for (auto joint_observation : *pomdp->getObservationSpace(t))
                 {
-                    auto joint_observation = jobs->toObservation();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
                         // Get the next belief and p(z_{t+1} | b_t, u_t)

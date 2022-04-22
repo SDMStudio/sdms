@@ -60,13 +60,13 @@ namespace sdm
         for (const auto &private_action : *this->getWorld()->getUnderlyingProblem()->getActionSpace(t))
         {
             // Evaluate the value of executing this action in the given state & history
-            action_value = this->evaluateAction(value_function, private_serial_occupancy_state, private_action->toAction(), next_hyperplane, t);
+            action_value = this->evaluateAction(value_function, private_serial_occupancy_state, private_action, next_hyperplane, t);
 
             // Take the best deterministic decision rule "decision_" for a precise hyperplan
             if (argmax_local < action_value)
             {
                 argmax_local = action_value;
-                best_action = private_action->toAction();
+                best_action = private_action;
             }
         }
         return {best_action, probability * argmax_local};

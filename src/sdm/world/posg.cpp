@@ -82,7 +82,7 @@ namespace sdm
                         }
                         res << ": " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(state, action->toAction(), next_state)
+                            << " : " << this->getTransitionProbability(state, action, next_state)
                             << std::endl;
                     }
                 }
@@ -106,7 +106,7 @@ namespace sdm
                             auto obs_agent_i = std::static_pointer_cast<JointObservation>(observation)->get(agent);
                             res << std::static_pointer_cast<DiscreteObservationSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
                         }
-                        res << ": " << this->getObservationProbability(next_state, action->toAction(), next_state, observation->toObservation(), 0) << std::endl;
+                        res << ": " << this->getObservationProbability(next_state, action, next_state, observation, 0) << std::endl;
                     }
                 }
             }
@@ -126,7 +126,7 @@ namespace sdm
                         << " : ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {
-                        res << this->getReward(state, action->toAction(), agent, 0) << " ";
+                        res << this->getReward(state, action, agent, 0) << " ";
                     }
 
                     res << std::endl;

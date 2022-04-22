@@ -65,7 +65,7 @@ namespace sdm
                 return nullptr;
             joint_action[agent] = individual_action;
         }
-        return this->action_space->getItemAddress(joint_action)->toAction()->toJointAction();
+        return this->action_space->getItemAddress(joint_action)->toJointAction();
     }
 
     double JointDeterministicDecisionRule::getProbability(const std::shared_ptr<HistoryInterface> &jhistories, const std::shared_ptr<Action> &jaction) const

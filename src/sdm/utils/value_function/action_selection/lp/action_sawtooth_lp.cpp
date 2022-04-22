@@ -171,7 +171,7 @@ namespace sdm
         // Go over all actions
         for (const auto &u : *underlying_problem->getActionSpace(t))
         {
-            auto action = u->toAction();
+            auto action = u;
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 // Compute coefficient related to a(u|o)
@@ -205,7 +205,7 @@ namespace sdm
         // Go over all actions
         for (const auto &u : *underlying_problem->getActionSpace(t))
         {
-            auto action = u->toAction();
+            auto action = u;
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 auto belief = occupancy_state->getBeliefAt(joint_history);
@@ -242,7 +242,7 @@ namespace sdm
         // Go over all actions
         for (const auto &u : *underlying_problem->getActionSpace(t))
         {
-            auto action = u->toAction();
+            auto action = u;
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 auto belief = occupancy_state->getBeliefAt(joint_history);

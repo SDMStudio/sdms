@@ -28,7 +28,7 @@ namespace sdm
             for (const auto& serial_action : *underlying_problem->getActionSpace(agent_id,t))
             {
                 //<! 0.c Build variables a_i(u_i|o_i)
-                VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id);
+                VarName = this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id);
                 var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
                 this->setNumber(VarName, index++);
             }
@@ -49,7 +49,7 @@ namespace sdm
             con.add(IloRange(env, 1.0, 1.0));
             for (const auto& serial_action : *underlying_problem->getActionSpace(agent_id,t))
             {
-                recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action->toAction(), indiv_history, agent_id));
+                recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(serial_action, indiv_history, agent_id));
                 con[index].setLinearCoef(var[recover], +1.0);
             }
             //<! increment constraints
@@ -74,7 +74,7 @@ namespace sdm
             // Go over all individual action
             for(const auto& action : *underlying_problem->getActionSpace(agent_id,t))
             {
-                index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action->toAction(), ihistory, agent_id));
+                index = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, ihistory, agent_id));
                 
                 // Add the variable in the vector only if the variable is true
                 if( cplex.getValue(var[index]) + .5 >= 1 )

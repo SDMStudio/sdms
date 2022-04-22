@@ -176,7 +176,7 @@ namespace sdm
 
     std::shared_ptr<Action> MDP::getRandomAction(const std::shared_ptr<State> &, number t)
     {
-        return this->getActionSpace(t)->sample()->toAction();
+        return this->getActionSpace(t)->sample();
     }
 
     std::string MDP::toStdFormat()
@@ -208,7 +208,7 @@ namespace sdm
                         res << "T: " << action_space->getItemIndex(action)
                             << " : " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(state->toState(), action->toAction(), next_state->toState())
+                            << " : " << this->getTransitionProbability(state, action, next_state->toState())
                             << std::endl;
                     }
                 }
@@ -220,7 +220,7 @@ namespace sdm
                 {
                     res << "R: " << action_space->getItemIndex(action)
                         << " : " << state_space->getItemIndex(state)
-                        << " : " << this->getReward(state->toState(), action->toAction())
+                        << " : " << this->getReward(state, action)
                         << std::endl;
                 }
             }

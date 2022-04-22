@@ -64,7 +64,7 @@
 //                         if (max_value_support < value)
 //                         {
 //                             max_value_support = value;
-//                             best_action_support = action->toAction();
+//                             best_action_support = action;
 //                         }
 //                     }
 //                 }
@@ -188,7 +188,7 @@
 //         {
 //             for (const auto &joint_action : *underlying_problem->getActionSpace(t))
 //             {
-//                 this->max = std::max(max, this->getValueAt(vf,occupancy_state,joint_history,joint_action->toAction(),nullptr,t));
+//                 this->max = std::max(max, this->getValueAt(vf,occupancy_state,joint_history,joint_action,nullptr,t));
 //             }
 //         }
 //     }
@@ -252,7 +252,7 @@
 //             //Go over all joint action
 //             for(const auto &joint_action : *underlying_problem->getActionSpace(t))
 //             {
-//                 costs.push_back(this->getCost(this->getValueAt(vf,occupancy_state,joint_history,joint_action->toAction(),nullptr,t)));
+//                 costs.push_back(this->getCost(this->getValueAt(vf,occupancy_state,joint_history,joint_action,nullptr,t)));
 //             }
 //             wcsp_solver->getWCSP()->postBinaryConstraint(this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(0),0)], this->variables[this->getVarNameIndividualHistory(joint_history->getIndividualHistory(1),1)], costs);
 //         }

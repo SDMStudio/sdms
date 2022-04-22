@@ -23,7 +23,7 @@ namespace sdm
             for (const auto &action : *getWorld()->getUnderlyingProblem()->getActionSpace(t))
             {
                 //< 0.b Build variables a(u|o)
-                VarName = this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history);
+                VarName = this->getVarNameJointHistoryDecisionRule(action, joint_history);
                 var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
                 this->setNumber(VarName, index++);
             }
@@ -51,12 +51,12 @@ namespace sdm
             // Go over all action
             for (const auto &action : *underlying_problem->getActionSpace(t))
             {
-                auto joint_action = std::static_pointer_cast<JointAction>(action->toAction());
+                auto joint_action = std::static_pointer_cast<JointAction>(action);
 
                 //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
                 con.add(IloRange(env, 1 - underlying_problem->getNumAgents(), +IloInfinity));
                 //<! 3.a.1 get variable a(u|o)
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), jhistory->toJointHistory()));
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, jhistory->toJointHistory()));
                 //<! 3.a.2 set coefficient of variable a(u|o)
                 con[index].setLinearCoef(var[recover], +1.0);
 
@@ -80,7 +80,7 @@ namespace sdm
             // Go over all action
             for (const auto &action : *underlying_problem->getActionSpace(t))
             {
-                auto joint_action = std::static_pointer_cast<JointAction>(action->toAction());
+                auto joint_action = std::static_pointer_cast<JointAction>(action);
 
                 // Go over agent
                 for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)

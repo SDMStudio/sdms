@@ -19,7 +19,7 @@ namespace sdm
         for (const auto &action : *action_space)
         {
             // Cast the action
-            auto casted_action = action->toAction();
+            auto casted_action = action;
 
             // Determine the value of the backup for a precise action
             if (max < (tmp = value_function->getQValueAt(state, casted_action, t)))

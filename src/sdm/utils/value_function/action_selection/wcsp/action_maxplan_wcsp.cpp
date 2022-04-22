@@ -62,7 +62,7 @@ namespace sdm
             // Go over all joint action
             for (const auto &joint_action : *underlying_problem->getActionSpace(t))
             {
-                costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action->toAction(), hyperplane, t)));
+                costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action, hyperplane, t)));
             }
 
             // ATTENTION : CETTE FONCTION (postBinaryConstraint) ENGENDRE UNE FUITE DE MEMOIRE
@@ -155,7 +155,7 @@ namespace sdm
         {
             for (const auto &action : *mpomdp->getActionSpace(t))
             {
-                this->max = std::max(max, this->getWeight(value_function, occupancy_state, joint_history, action->toAction(), hyperplane, t));
+                this->max = std::max(max, this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t));
             }
         }
     }

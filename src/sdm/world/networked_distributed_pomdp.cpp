@@ -318,17 +318,17 @@ namespace sdm
                         double joint_reward = 0.0;
                         for (number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
                         {
-                            auto action_ag1 = std::static_pointer_cast<JointAction>(joint_action->toAction())->get(agent_id1);
+                            auto action_ag1 = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id1);
                             number idx_action_ag1 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id1)->toDiscreteSpace()->getItemIndex(action_ag1);
                             for (number agent_id2 = 0; agent_id2 < this->getNumAgents(); agent_id2++)
                             {
-                                auto action_ag2 = std::static_pointer_cast<JointAction>(joint_action->toAction())->get(agent_id2);
+                                auto action_ag2 = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id2);
                                 number idx_action_ag2 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id2)->toDiscreteSpace()->getItemIndex(action_ag2);
 
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
                             }
                         }
-                        reward_fct->setReward(state, joint_action->toAction(), 0, joint_reward);
+                        reward_fct->setReward(state, joint_action, 0, joint_reward);
                     }
                 }
                 this->reward_space_ = reward_fct;
@@ -363,7 +363,7 @@ namespace sdm
                         auto next_state_idx = this->getStateSpace()->toDiscreteSpace()->getItem(std::stoi(key2));
                         for (const auto &action : *this->getActionSpace())
                         {
-                            state_dynamics_tmp->setTransitionProbability(state_idx, action->toAction(), next_state_idx, prob);
+                            state_dynamics_tmp->setTransitionProbability(state_idx, action, next_state_idx, prob);
                         }
                     }
                     std::getline(input_file, line);
@@ -428,7 +428,7 @@ namespace sdm
                             }
                             if (proba > 0.00001)
                             {
-                                observation_dynamics_tmp->setObservationProbability(nullptr, joint_action->toAction(), next_state, joint_obs->toObservation(), proba);
+                                observation_dynamics_tmp->setObservationProbability(nullptr, joint_action, next_state, joint_obs, proba);
                             }
                         }
                     }
@@ -552,9 +552,9 @@ namespace sdm
     //     std::set<std::shared_ptr<Observation>> set_reachable;
     //     for (const auto &obs : *this->getObservationSpace())
     //     {
-    //         if (getObservationProbability(state, action, next_state, obs->toObservation(), t) > 0)
+    //         if (getObservationProbability(state, action, next_state, obs, t) > 0)
     //         {
-    //             set_reachable.insert(obs->toObservation());
+    //             set_reachable.insert(obs);
     //         }
     //     }
     //     return set_reachable;
@@ -589,10 +589,10 @@ namespace sdm
     //     for (auto obs_n : *obs_space)
     //     {
 
-    //         cumul += this->getObservationProbability(state, action, this->getInternalState(), obs_n->toObservation(), t);
+    //         cumul += this->getObservationProbability(state, action, this->getInternalState(), obs_n, t);
     //         if (epsilon < cumul)
     //         {
-    //             return obs_n->toObservation();
+    //             return obs_n;
     //         }
     //     }
     //     return nullptr;

@@ -117,7 +117,7 @@ namespace sdm
         for (const auto &observation : *accessible_observation_space)
         {
             // Compute next state
-            auto [next_state, state_transition_proba] = this->getPOMDPValueFunction()->getWorld()->getNextStateAndProba(belief, action, observation->toObservation(), t);
+            auto [next_state, state_transition_proba] = this->getPOMDPValueFunction()->getWorld()->getNextStateAndProba(belief, action, observation, t);
 
             // Update the next expected value at the next state
             exp_next_v += state_transition_proba * this->getPOMDPValueFunction()->getValueAt(next_state, t + 1);

@@ -57,7 +57,7 @@ namespace sdm
 
                                 if (u_ == nullptr)
                                     continue;
-                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z->toObservation(), t) * hyperplane_->getValueAt(x_, c_o_, u_);
+                                delta_xou += getWorld()->getDiscount(t) * pomdp->getDynamics(x, u, x_, z, t) * hyperplane_->getValueAt(x_, c_o_, u_);
                             }
                         }
                     }

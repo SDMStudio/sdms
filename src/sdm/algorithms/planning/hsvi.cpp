@@ -111,18 +111,18 @@ namespace sdm
         std::shared_ptr<Observation> selected_observation;
 
         // Select next observation
-        auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), t);
+        auto observation_space = getWorld()->getObservationSpaceAt(state, action, t);
         for (const auto &observation : *observation_space)
         {
             // Get the next state and probability
-            auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action->toAction(), observation->toObservation(), t);
+            auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action, observation, t);
 
             // Compute error correlated to this next state
             error = transition_proba * excess(next_state, 0, t + 1);
             if (error > biggest_error)
             {
                 biggest_error = error;
-                selected_observation = observation->toObservation();
+                selected_observation = observation;
             }
         }
         return {selected_observation};
