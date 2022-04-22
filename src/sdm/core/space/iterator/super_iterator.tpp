@@ -52,6 +52,7 @@ namespace sdm
         {
             return *this->sub_iterator_;
         }
+
     } // namespace iterator
 
 } // namespace sdm

@@ -214,8 +214,6 @@ namespace sdm
         }
 
         // Create the function space of joint deterministic decision rules.
-        // TODO : Remettre le action_space en argument
-        // std::shared_ptr<ActionSpace> joint_ddr_space = std::make_shared<MultiDiscreteSpace<std::shared_ptr<Action>, JointDeterministicDecisionRule>>(individual_ddr_spaces, this->store_actions_);
 
         // FunctionSpace<JointDeterministicDecisionRule, Action> jdr_space({FunctionSpace<DeterministicDecisionRule, Action>(this->getDescriptiveStatistics(0), this->getActionSpace(0), false),
         //                                                                  FunctionSpace<DeterministicDecisionRule, Action>(this->getDescriptiveStatistics(1), this->getActionSpace(1), false)});

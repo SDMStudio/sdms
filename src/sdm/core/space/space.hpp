@@ -46,7 +46,7 @@ namespace sdm
   {
   public:
     using iterator_type = std::shared_ptr<Iterator<TItem>>;
-
+    
     virtual ~BaseSpace() {}
 
     /**

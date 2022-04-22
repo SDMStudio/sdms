@@ -18,7 +18,7 @@ int main(int argc, char **argv)
     std::vector<std::vector<std::shared_ptr<Action>>> actions = {{up, fire, fire, down}, {up, down, fire}};
 
     auto state_sp = std::make_shared<DiscreteStateSpace>(states);
-    auto action_sp = std::make_shared<MultiDiscreteActionSpace>(actions);
+    auto action_sp = std::make_shared<MultiDiscreteActionSpace>(actions, false);
 
     for (const auto &state : *state_sp)
     {
@@ -28,6 +28,12 @@ int main(int argc, char **argv)
     for (const auto &action : *action_sp)
     {
         std::cout << "a=" << *action << std::endl;
+    }
+
+
+    for (auto iter = action_sp->begin(); !iter->equal(action_sp->end()); iter = iter->next())
+    {
+        std::cout << "a=" << iter->getCurrent() << std::endl;
     }
 
     // auto iter_state_sp1 = state_sp1->getIterator();
