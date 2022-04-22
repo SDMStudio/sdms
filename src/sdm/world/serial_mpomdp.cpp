@@ -19,12 +19,12 @@ namespace sdm
         setReachableObservationSpace(mpomdp);
     }
 
-    std::shared_ptr<Space> SerialMPOMDP::getObservationSpace(number t) const
+    std::shared_ptr<ObservationSpace> SerialMPOMDP::getObservationSpace(number t) const
     {
         return this->serial_observation_space_.at(this->getAgentId(t));
     }
 
-    std::shared_ptr<Space> SerialMPOMDP::getObservationSpace(number agent_id, number t) const
+    std::shared_ptr<ObservationSpace> SerialMPOMDP::getObservationSpace(number agent_id, number t) const
     {
         return this->getObservationSpace(t);
     }
@@ -43,12 +43,10 @@ namespace sdm
         all_action.push_back(action);
 
 
-        std::shared_ptr<Item> item = observation;
-        auto discrete_space = std::static_pointer_cast<DiscreteSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));
+        auto indiv_observation_space = std::static_pointer_cast<DiscreteObservationSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));
+        auto index = indiv_observation_space->find(observation);
 
-        auto index = discrete_space->find(item);
-
-        if (index != -1 && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1 && discrete_space->getItem(index))
+        if (index != -1 && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1 && indiv_observation_space->getItem(index))
         {
             // The probability is the same of the decpomdp, if the condition are verified
             return this->mpomdp->getObservationProbability(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
@@ -100,20 +98,16 @@ namespace sdm
         // Add the information in the variable empty_serial_observation
         this->empty_serial_observation = empty_observation;
         // Create the Serial Observation Space
-        std::vector<std::shared_ptr<DiscreteSpace>> all_observation_space;
+        std::vector<std::shared_ptr<DiscreteObservationSpace>> all_observation_space;
 
-        std::shared_ptr<DiscreteSpace> space;
+        std::shared_ptr<DiscreteObservationSpace> space;
         for (number ag_id = 0; ag_id < this->getNumAgents(); ag_id++)
         {
             // If it's the last agent, then the serial observation space correspond to the mpomdp observation space, else it's the empty observation
             if (this->isLastAgent(ag_id))
-            {
-                space = std::static_pointer_cast<DiscreteSpace>(mpomdp->getObservationSpace(0));
-            }
+                space = std::static_pointer_cast<DiscreteObservationSpace>(mpomdp->getObservationSpace(0));
             else
-            {
-                space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<Item>>({this->empty_serial_observation}));
-            }
+                space = std::make_shared<DiscreteObservationSpace>(std::vector<std::shared_ptr<Observation>>({this->empty_serial_observation}));
             all_observation_space.push_back(space);
         }
         this->serial_observation_space_ = all_observation_space;
@@ -129,15 +123,13 @@ namespace sdm
         {
             for (const auto &state : *this->getStateSpace(agent_id))
             {
-                auto serial_state = state->toState()->toSerial();
+                auto serial_state = state->toSerial();
 
                 // Go over serial action
-                for (const auto action_tmp : *this->getActionSpace(agent_id))
+                for (const auto serial_action : *this->getActionSpace(agent_id))
                 {
-                    auto serial_action = action_tmp->toAction();
-
                     // Go over joint_obs
-                    for (const auto next_state : this->getReachableStates(state->toState(), serial_action, 0))
+                    for (const auto next_state : this->getReachableStates(state, serial_action, 0))
                     {
                         auto next_serial_state = next_state->toSerial();
 
@@ -153,13 +145,13 @@ namespace sdm
                             for (const auto obs : mpomdp->getReachableObservations(serial_state->getHiddenState(), this->getPointeurJointAction(joint_action), next_serial_state->getHiddenState(), 0))
                             {
                                 // all_obs.insert(obs);
-                                observation_dynamics->setReachableObservations(state->toState(), serial_action, next_state, obs);
+                                observation_dynamics->setReachableObservations(state, serial_action, next_state, obs);
                             }
                         }
                         else
                         {
                             // all_obs.insert(this->empty_serial_observation);
-                            observation_dynamics->setReachableObservations(state->toState(), serial_action, next_state, this->empty_serial_observation);
+                            observation_dynamics->setReachableObservations(state, serial_action, next_state, this->empty_serial_observation);
                         }
                     }
                 }

@@ -7,9 +7,9 @@ namespace sdm
 
     MPOMDP::MPOMDP() {}
 
-    MPOMDP::MPOMDP(const std::shared_ptr<Space> &state_space,
-                   const std::shared_ptr<Space> &action_space,
-                   const std::shared_ptr<Space> &obs_space,
+    MPOMDP::MPOMDP(const std::shared_ptr<StateSpace> &state_space,
+                   const std::shared_ptr<ActionSpace> &action_space,
+                   const std::shared_ptr<ObservationSpace> &obs_space,
                    const std::shared_ptr<RewardModel> &reward,
                    const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                    const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
@@ -21,18 +21,18 @@ namespace sdm
           POMDP(state_space, action_space, obs_space, reward, state_dynamics, obs_dynamics, start_distrib, horizon, discount, criterion),
           MMDP(state_space, action_space, reward, state_dynamics, start_distrib, horizon, discount, criterion)
     {
-        this->num_agents_ = std::static_pointer_cast<MultiDiscreteSpace>(action_space)->getNumSpaces();
+        this->num_agents_ = std::static_pointer_cast<MultiDiscreteActionSpace>(action_space)->getNumSpaces();
     }
 
     MPOMDP::~MPOMDP() {}
 
-    std::shared_ptr<Space> MPOMDP::getObservationSpace(number t) const
+    std::shared_ptr<ObservationSpace> MPOMDP::getObservationSpace(number t) const
     {
         return POMDP::getObservationSpace(t);
     }
-    std::shared_ptr<Space> MPOMDP::getObservationSpace(number agent_id, number t) const
+    std::shared_ptr<ObservationSpace> MPOMDP::getObservationSpace(number agent_id, number t) const
     {
-        return std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(t))->getSpace(agent_id);
+        return std::static_pointer_cast<MultiDiscreteObservationSpace>(this->getObservationSpace(t))->getSpace(agent_id);
     }
 
     std::string MPOMDP::toStdFormat()
@@ -40,9 +40,9 @@ namespace sdm
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
         {
 
-            auto state_space = std::static_pointer_cast<DiscreteSpace>(this->getStateSpace());
-            auto action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getActionSpace());
-            auto obs_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(0));
+            auto state_space = std::static_pointer_cast<DiscreteStateSpace>(this->getStateSpace());
+            auto action_space = std::static_pointer_cast<MultiDiscreteActionSpace>(this->getActionSpace());
+            auto obs_space = std::static_pointer_cast<MultiDiscreteObservationSpace>(this->getObservationSpace());
 
             std::ostringstream res;
             number n_agents = this->getNumAgents();
@@ -54,21 +54,21 @@ namespace sdm
             res << "start: " << std::endl;
             for (const auto &initial_state : *this->getStateSpace(0))
             {
-                res << std::static_pointer_cast<DiscreteDistribution<std::shared_ptr<State>>>(this->getStartDistribution())->getProbability(initial_state->toState()) << " ";
+                res << std::static_pointer_cast<DiscreteDistribution<std::shared_ptr<State>>>(this->getStartDistribution())->getProbability(initial_state) << " ";
             }
 
             // Action space
             res << "actions: \n";
             for (number ag = 0; ag < n_agents; ag++)
             {
-                res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(ag))->getNumItems() << "\n";
+                res << action_space->getSpace(ag)->getNumItems() << "\n";
             }
 
             // Observation space
             res << "observations: \n";
             for (number ag = 0; ag < n_agents; ag++)
             {
-                res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
+                res << obs_space->getSpace(ag)->getNumItems() << "\n";
             }
 
             for (const auto &state : *state_space)
@@ -81,12 +81,12 @@ namespace sdm
                         res << "T: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
-                            res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                            auto action_agent_i = std::static_pointer_cast<JointAction>(action)->get(agent);
+                            res << action_space->getSpace(agent)->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(state->toState(), action->toAction(), next_state->toState())
+                            << " : " << this->getTransitionProbability(state, action, next_state)
                             << std::endl;
                     }
                 }
@@ -101,16 +101,16 @@ namespace sdm
                         res << "O: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
-                            res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                            auto action_agent_i = std::static_pointer_cast<JointAction>(action)->get(agent);
+                            res << action_space->getSpace(agent)->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(next_state) << " : ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto obs_agent_i = std::static_pointer_cast<JointItem>(observation)->get(agent);
-                            res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
+                            auto obs_agent_i = std::static_pointer_cast<JointObservation>(observation)->get(agent);
+                            res << obs_space->getSpace(agent)->getItemIndex(obs_agent_i) << " ";
                         }
-                        res << ": " << this->getObservationProbability(next_state->toState(), action->toAction(), next_state->toState(), observation->toObservation(), 0) << std::endl;
+                        res << ": " << this->getObservationProbability(next_state, action->toAction(), next_state, observation, 0) << std::endl;
                     }
                 }
             }
@@ -122,11 +122,11 @@ namespace sdm
                     res << "R: ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {
-                        auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
-                        res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                        auto action_agent_i = std::static_pointer_cast<JointAction>(action)->get(agent);
+                        res << std::static_pointer_cast<DiscreteActionSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                     }
                     res << ": " << state_space->getItemIndex(state)
-                        << " : " << this->getReward(state->toState(), action->toAction())
+                        << " : " << this->getReward(state, action)
                         << std::endl;
                 }
             }

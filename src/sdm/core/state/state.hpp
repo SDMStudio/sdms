@@ -49,6 +49,8 @@ namespace sdm
     class State : public Observation
     {
     public:
+        using base = State;
+        
         virtual ~State() {}
 
         /**

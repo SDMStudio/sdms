@@ -60,8 +60,8 @@ namespace sdm
     std::shared_ptr<Action> IndividualLP::getVariableResult(const std::shared_ptr<ValueFunctionInterface>&, const std::shared_ptr<State> &state,const IloCplex &cplex, const IloNumVarArray &var, number t, number agent_id)
     {
         number index = 0;
-        std::vector<std::shared_ptr<Item>> actions;
-        std::vector<std::shared_ptr<Item>> indiv_histories;
+        std::vector<std::shared_ptr<Action>> actions;
+        std::vector<std::shared_ptr<HistoryInterface>> indiv_histories;
 
         auto underlying_problem = std::dynamic_pointer_cast<MMDPInterface>(this->world_->getUnderlyingProblem());
         auto occupancy_state = state->toOccupancyState();

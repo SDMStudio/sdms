@@ -43,19 +43,18 @@ namespace sdm
       template <typename AST>
       std::shared_ptr<sdm::MDP> operator()(AST const &ast)
       {
-        discrete_space_encoder<StringItem> ds_encoder;
         discrete_space_encoder<StringState> ds_state_encoder;
         multi_discrete_space_encoder<StringAction> mds_action_encoder;
 
         // Encodes agent space
         auto agent_id = std::make_shared<StringItem>("0");
-        std::shared_ptr<DiscreteSpace> agent_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
+        auto agent_space = std::make_shared<DiscreteItemSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
 
         // Encodes state space
-        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
+        auto state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
 
         // Encodes action space
-        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
+        auto action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
 
         // Encodes the reward function
         tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);
@@ -90,28 +89,28 @@ namespace sdm
       template <typename AST>
       std::shared_ptr<sdm::MMDP> operator()(AST const &ast, bool is_multi_agent = true)
       {
-        discrete_space_encoder<StringItem> ds_encoder;
+        discrete_space_encoder<StringItem> agent_encoder;
         discrete_space_encoder<StringState> ds_state_encoder;
         multi_discrete_space_encoder<StringAction> mds_action_encoder;
 
-        std::shared_ptr<DiscreteSpace> agent_space;
+        std::shared_ptr<DiscreteItemSpace> agent_space;
         // Encodes agent space
         if (is_multi_agent)
         {
-          agent_space = boost::apply_visitor(ds_encoder, ast.agent_param);
+          agent_space = boost::apply_visitor(agent_encoder, ast.agent_param);
         }
         else
         {
           // Encodes agent space
           auto agent_id = std::make_shared<StringItem>("0");
-          agent_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
+          agent_space = std::make_shared<DiscreteItemSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
         }
 
         // Encodes state space
-        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
+        auto state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
 
         // Encodes action space
-        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
+        auto action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
 
         // Encodes the reward function
         tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);
@@ -146,23 +145,22 @@ namespace sdm
       template <typename AST>
       std::shared_ptr<sdm::POMDP> operator()(AST const &ast)
       {
-        discrete_space_encoder<StringItem> ds_encoder;
         discrete_space_encoder<StringState> ds_state_encoder;
         multi_discrete_space_encoder<StringAction> mds_action_encoder;
         multi_discrete_space_encoder<StringObservation> mds_observation_encoder;
 
         // Encodes agent space
         auto agent_id = std::make_shared<StringItem>("0");
-        std::shared_ptr<DiscreteSpace> agent_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
+        auto agent_space = std::make_shared<DiscreteItemSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
 
         // Encodes state space
-        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
+        auto state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
 
         // Encodes action space
-        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
+        auto action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
 
         // Encodes observation space
-        std::shared_ptr<MultiDiscreteSpace> obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
+        auto obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
 
         // Encodes the reward function
         tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);
@@ -201,33 +199,33 @@ namespace sdm
       template <typename AST>
       std::shared_ptr<sdm::DecPOMDP> operator()(AST const &ast, bool is_multi_agent = true)
       {
-        discrete_space_encoder<StringItem> ds_encoder;
+        discrete_space_encoder<StringItem> agent_encoder;
         discrete_space_encoder<StringState> ds_state_encoder;
         multi_discrete_space_encoder<StringAction> mds_action_encoder;
         multi_discrete_space_encoder<StringObservation> mds_observation_encoder;
 
         // Encodes agent space
-        std::shared_ptr<DiscreteSpace> agent_space;
+        std::shared_ptr<DiscreteItemSpace> agent_space;
         // Encodes agent space
         if (is_multi_agent)
         {
-          agent_space = boost::apply_visitor(ds_encoder, ast.agent_param);
+          agent_space = boost::apply_visitor(agent_encoder, ast.agent_param);
         }
         else
         {
           // Encodes agent space
           auto agent_id = std::make_shared<StringItem>("0");
-          agent_space = std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
+          agent_space = std::make_shared<DiscreteItemSpace>(std::vector<std::shared_ptr<StringItem>>{agent_id});
         }
 
         // Encodes state space
-        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
+        auto state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
 
         // Encodes action space
-        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
+        auto action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
 
         // Encodes observation space
-        std::shared_ptr<MultiDiscreteSpace> obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
+        auto obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
 
         // Encodes the reward function
         tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);
@@ -240,7 +238,7 @@ namespace sdm
         auto start_distribution = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
         for (const auto &pair_state_proba : *start_distrib__)
         {
-          start_distribution->setProbability(state_space->getItem(pair_state_proba.first)->toState(), pair_state_proba.second);
+          start_distribution->setProbability(state_space->getItem(pair_state_proba.first), pair_state_proba.second);
         }
 
         // // Encodes the state dynamics
@@ -265,22 +263,22 @@ namespace sdm
 
       std::shared_ptr<sdm::POSG> operator()(posg_t const &ast)
       {
-        discrete_space_encoder<StringItem> ds_encoder;
+        discrete_space_encoder<StringItem> agent_encoder;
         discrete_space_encoder<StringState> ds_state_encoder;
         multi_discrete_space_encoder<StringAction> mds_action_encoder;
         multi_discrete_space_encoder<StringObservation> mds_observation_encoder;
 
         // Encodes agent space
-        std::shared_ptr<DiscreteSpace> agent_space = boost::apply_visitor(ds_encoder, ast.agent_param);
+        auto agent_space = boost::apply_visitor(agent_encoder, ast.agent_param);
 
         // Encodes state space
-        std::shared_ptr<DiscreteSpace> state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
+        auto state_space = boost::apply_visitor(ds_state_encoder, ast.state_param);
 
         // Encodes action space
-        std::shared_ptr<MultiDiscreteSpace> action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
+        auto action_space = boost::apply_visitor(mds_action_encoder, ast.action_param);
 
         // Encodes observation space
-        std::shared_ptr<MultiDiscreteSpace> obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
+        auto obs_space = boost::apply_visitor(mds_observation_encoder, ast.observation_param);
 
         // Encodes the reward function
         multi_tabular_rewards_encoder rews_encoder(state_space, agent_space, action_space);

@@ -4,9 +4,9 @@ namespace sdm
 {
     POMDP::POMDP() {}
 
-    POMDP::POMDP(const std::shared_ptr<Space> &state_space,
-                 const std::shared_ptr<Space> &action_space,
-                 const std::shared_ptr<Space> &observation_space,
+    POMDP::POMDP(const std::shared_ptr<StateSpace> &state_space,
+                 const std::shared_ptr<ActionSpace> &action_space,
+                 const std::shared_ptr<ObservationSpace> &observation_space,
                  const std::shared_ptr<RewardModel> &reward,
                  const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                  const std::shared_ptr<ObservationDynamicsInterface> &observation_dynamics,
@@ -19,7 +19,7 @@ namespace sdm
     {
     }
 
-    std::shared_ptr<Space> POMDP::getObservationSpace(number) const
+    std::shared_ptr<ObservationSpace> POMDP::getObservationSpace(number) const
     {
         return this->observation_space_;
     }

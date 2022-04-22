@@ -63,7 +63,7 @@ namespace sdm
                  * @return the space of observation of the central planner.
                  *
                  */
-                virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+                virtual std::shared_ptr<ObservationSpace> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
                 /**
                  * @brief Get the action space of the central planner.
@@ -75,7 +75,7 @@ namespace sdm
                  * @return the space of actions of the central planner.
                  *
                  */
-                virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                virtual std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
 
                 /**
                  * @brief Check whether the central planner observation is compatible with an underlying observation.
@@ -118,7 +118,7 @@ namespace sdm
                 /** @brief Length of the memory */
                 number memory = 0;
 
-                virtual std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                virtual std::shared_ptr<ActionSpace> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
         };
 
         using OccupancyMDP = BaseOccupancyMDP<OccupancyState>;

@@ -19,6 +19,7 @@
 #include <sdm/utils/struct/tuple.hpp>
 #include <sdm/core/state/base_state.hpp>
 #include <sdm/core/space/discrete_space.hpp>
+#include <sdm/core/space/multi_discrete_space.hpp>
 #include <sdm/world/gym_interface.hpp>
 
 namespace sdm
@@ -70,7 +71,7 @@ namespace sdm
                  * @param t the time step
                  * @return the action space.
                  */
-                std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
+                std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
                 /**
                  * @brief Get random action.
@@ -102,12 +103,12 @@ namespace sdm
                 /**
                  * @brief Space of possible coordinates for the robot and the waste.
                  */
-                std::shared_ptr<DiscreteSpace> coord_space_;
+                std::shared_ptr<DiscreteStateSpace> coord_space_;
 
                 /**
                  * @brief The space of all possible actions
                  */
-                std::shared_ptr<DiscreteSpace> action_space_;
+                std::shared_ptr<DiscreteActionSpace> action_space_;
 
                 /**
                  * @brief  Coordinates of the robot and the waste.
@@ -117,7 +118,7 @@ namespace sdm
                 /**
                  * @brief Space of possible coordinates for the robot and the waste.
                  */
-                std::shared_ptr<MultiDiscreteSpace> state_space_;
+                std::shared_ptr<MultiDiscreteStateSpace> state_space_;
 
                 /** @brief Get the number of lines */
                 int getSizeX() const;

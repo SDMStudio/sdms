@@ -1,6 +1,6 @@
 #pragma once
 
-#include <sdm/utils/struct/iterator.hpp>
+#include <sdm/core/space/iterator.hpp>
 
 namespace sdm
 {
@@ -23,14 +23,13 @@ namespace sdm
         {
         public:
             SuperIterator(const STDIterator &sub_iterator);
-            std::shared_ptr<ItemIterator> copy() const;
+            std::shared_ptr<Iterator<TItem>> copy() const;
             std::shared_ptr<Iterator<TItem>> operator++();
             std::shared_ptr<Iterator<TItem>> operator+=(number n);
             std::shared_ptr<Iterator<TItem>> operator+(number n) const;
             bool operator==(const std::shared_ptr<Iterator<TItem>> &other) const;
             bool operator!=(const std::shared_ptr<Iterator<TItem>> &other) const;
-            TItem &operator*();
-            TItem *operator->();
+            TItem &getCurrent();
 
         protected:
             /** @brief the standard sub iterator. */
@@ -39,4 +38,4 @@ namespace sdm
     } // namespace iterator
 
 } // namespace sdm
-#include <sdm/utils/struct/iterator/super_iterator.tpp>
+#include <sdm/core/space/iterator/super_iterator.tpp>

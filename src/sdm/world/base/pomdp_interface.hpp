@@ -30,7 +30,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpace(number t) const = 0;
+        virtual std::shared_ptr<ObservationSpace> getObservationSpace(number t) const = 0;
 
         /**
          * @brief Get reachable observations

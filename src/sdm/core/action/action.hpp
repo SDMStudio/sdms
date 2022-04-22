@@ -31,6 +31,8 @@ namespace sdm
     class Action : public Item
     {
     public:
+        using base = Action;
+
         virtual ~Action() {}
         /**
          * @brief Get the hash of the state.

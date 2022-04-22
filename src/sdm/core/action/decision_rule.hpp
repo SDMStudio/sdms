@@ -21,7 +21,9 @@ namespace sdm
      */
     class DecisionRule : public Action, public Function<std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>>
     {
+
     public:
+
         /**
          * @brief Get the action deducted from a given state
          *

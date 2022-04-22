@@ -52,9 +52,9 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t = 0);
+        std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &state, number t = 0);
 
-        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
+        virtual std::shared_ptr<ObservationSpace> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
         virtual Pair<std::shared_ptr<State>, double> getNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t);
 
@@ -174,6 +174,6 @@ namespace sdm
         /** @brief The initial state */
         std::shared_ptr<State> initial_state_;
 
-        RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<Space>> observation_space;
+        // RecursiveMap<std::shared_ptr<State>, std::shared_ptr<Action>, std::shared_ptr<ObservationSpace>> observation_space;
     };
 } // namespace sdm

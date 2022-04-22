@@ -20,12 +20,12 @@ namespace sdm
         for (const auto &state : *pomdp->getStateSpace(0))
         {
             // Get the state's probability
-            double probability = pomdp->getStartDistribution()->getProbability(state->toState(), nullptr);
+            double probability = pomdp->getStartDistribution()->getProbability(state, nullptr);
             // If the state is possible:
             if (probability > 0)
             {
                 // Set the probability
-                initial_state->setProbability(state->toState(), probability);
+                initial_state->setProbability(state, probability);
             }
         }
 
@@ -59,13 +59,13 @@ namespace sdm
     }
 
     template <class TBelief>
-    std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
+    std::shared_ptr<ObservationSpace> BaseBeliefMDP<TBelief>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
         return this->pomdp->getObservationSpace(t);
     }
 
     template <class TBelief>
-    std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getActionSpaceAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<ActionSpace> BaseBeliefMDP<TBelief>::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return this->mdp->getActionSpace(t);
     }

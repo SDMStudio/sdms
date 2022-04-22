@@ -39,7 +39,7 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        std::shared_ptr<Space> getObservationSpace(number t) const;
+        std::shared_ptr<ObservationSpace> getObservationSpace(number t) const;
 
         /**
          * @brief Get ths observation space of agent i at timestep t.
@@ -48,7 +48,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        std::shared_ptr<Space> getObservationSpace(number agent_id, number t) const;
+        std::shared_ptr<ObservationSpace> getObservationSpace(number agent_id, number t) const;
 
         /**
          * @brief Get the Reachablel Observations object
@@ -103,7 +103,7 @@ namespace sdm
          * @brief  Create the Observation Space
          *
          */
-        Joint<std::shared_ptr<DiscreteSpace>> serial_observation_space_;
+        Joint<std::shared_ptr<DiscreteObservationSpace>> serial_observation_space_;
 
         /**
          * @brief Initialize Serial Observation Space

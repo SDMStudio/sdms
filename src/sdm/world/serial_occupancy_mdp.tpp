@@ -72,18 +72,19 @@ namespace sdm
     }
 
     template <typename TSerialOState>
-    std::shared_ptr<Space> BaseSerialOccupancyMDP<TSerialOState>::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
+    std::shared_ptr<ActionSpace> BaseSerialOccupancyMDP<TSerialOState>::computeActionSpaceAt(const std::shared_ptr<State> &ostate, number t)
     {
         // Transform in serial occupancy state
         auto serial_ostate = ostate->toOccupancyState();
         // Get individual histories of agent i.
         std::set<std::shared_ptr<HistoryInterface>> individual_histories = serial_ostate->getIndividualHistories(this->getAgentId(t));
         // Get individual history space of agent i.
-        std::shared_ptr<Space> individual_history_space = std::make_shared<DiscreteSpace>(sdm::tools::set2vector(individual_histories));
+        std::shared_ptr<DiscreteSpace<std::shared_ptr<HistoryInterface>>> individual_history_space = std::make_shared<DiscreteSpace<std::shared_ptr<HistoryInterface>>>(sdm::tools::set2vector(individual_histories));
+
         // Get action space of agent i.
-        std::shared_ptr<Space> individual_action_space = this->getUnderlyingMPOMDP()->getActionSpace(this->getAgentId(t), t);
+        std::shared_ptr<ActionSpace> individual_action_space = this->getUnderlyingMPOMDP()->getActionSpace(this->getAgentId(t), t);
         // Get individual ddr of agent i.
-        std::shared_ptr<Space> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule>>(individual_history_space, individual_action_space, this->store_actions_);
+        std::shared_ptr<ActionSpace> individual_ddr_space = std::make_shared<FunctionSpace<DeterministicDecisionRule, Action>>(individual_history_space, individual_action_space, this->store_actions_);
 
         return individual_ddr_space;
     }
@@ -98,9 +99,9 @@ namespace sdm
     std::shared_ptr<Action> BaseSerialOccupancyMDP<TSerialOState>::computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t)
     {
         // Input states for the a of agent.
-        std::vector<std::shared_ptr<Item>> inputs;
+        std::vector<std::shared_ptr<HistoryInterface>> inputs;
         // Outputed actions for each of these.
-        std::vector<std::shared_ptr<Item>> outputs;
+        std::vector<std::shared_ptr<Action>> outputs;
 
         number agentID = this->getAgentId(t);
 

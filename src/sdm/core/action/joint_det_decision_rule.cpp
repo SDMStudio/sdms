@@ -7,13 +7,13 @@ namespace sdm
 {
     JointDeterministicDecisionRule::JointDeterministicDecisionRule() {}
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<std::shared_ptr<DecisionRule>> &idr_list, const std::shared_ptr<Space> &action_space)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const Joint<std::shared_ptr<DecisionRule>> &idr_list, const std::shared_ptr<ActionSpace> &action_space)
     {
         this->joint_idr = idr_list;
         this->action_space = action_space->toDiscreteSpace();
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_histories, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<HistoryInterface>>> acc_histories, std::vector<std::vector<std::shared_ptr<Action>>> actions, const std::shared_ptr<ActionSpace> &action_space)
     {
         assert(acc_histories.size() == actions.size());
         if (action_space != nullptr)
@@ -24,9 +24,10 @@ namespace sdm
         }
     }
 
-    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr, const std::shared_ptr<Space> &action_space)
+    JointDeterministicDecisionRule::JointDeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &, const std::vector<std::shared_ptr<Action>> &list_indiv_dr, const std::shared_ptr<ActionSpace> &action_space)
     {
-        auto joint_indiv_dr = list_indiv_dr[0]->to<JointItem>();
+
+        auto joint_indiv_dr = list_indiv_dr[0]->to<JointAction>();
         if (action_space != nullptr)
             this->action_space = action_space->toDiscreteSpace();
         for (const auto indiv_dr : *joint_indiv_dr)
@@ -51,7 +52,7 @@ namespace sdm
             joint_action.push_back(individual_action);
         }
 
-        return this->action_space->getItemAddress(joint_action)->toAction();
+        return this->action_space->getItemAddress(joint_action);
     }
 
     std::shared_ptr<JointAction> JointDeterministicDecisionRule::act(const std::shared_ptr<JointHistoryInterface> &joint_histories) const

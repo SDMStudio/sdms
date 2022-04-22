@@ -94,12 +94,12 @@ namespace sdm
         // Consequently, we just take the distrubution of the mmdp to the new serial state
         for (const auto &state : *this->getStateSpace(0))
         {
-            discrete_distribution->setProbability(state->toState(), mmdp_distribution->getProbability(state->toState()->toSerial()->getHiddenState(), nullptr));
+            discrete_distribution->setProbability(state, mmdp_distribution->getProbability(state->toSerial()->getHiddenState(), nullptr));
         }
         this->distribution_serial = discrete_distribution;
     }
 
-    std::shared_ptr<Space> SerialMMDP::getStateSpace(number t) const
+    std::shared_ptr<StateSpace> SerialMMDP::getStateSpace(number t) const
     {
         return this->serial_state_space_.at(this->getAgentId(t));
     }
@@ -109,12 +109,12 @@ namespace sdm
         return this->state_dynamics_->getReachableStates(state, action, t);
     }
 
-    std::shared_ptr<Space> SerialMMDP::getActionSpace(number t) const
+    std::shared_ptr<ActionSpace> SerialMMDP::getActionSpace(number t) const
     {
         return this->mmdp_->getActionSpace(this->getAgentId(t), t);
     }
 
-    std::shared_ptr<Space> SerialMMDP::getActionSpace(number, number t) const
+    std::shared_ptr<ActionSpace> SerialMMDP::getActionSpace(number, number t) const
     {
         return this->getActionSpace(t);
     }
@@ -160,7 +160,7 @@ namespace sdm
     void SerialMMDP::createInitSerialStateSpace()
     {
         // Vector of all serial state
-        std::vector<std::shared_ptr<DiscreteSpace>> all_serial_state;
+        std::vector<std::shared_ptr<DiscreteStateSpace>> all_serial_state;
 
         std::vector<JointAction> all_past_action;
 
@@ -168,7 +168,7 @@ namespace sdm
         for (int i = 0; i < this->getNumAgents(); i++)
         {
             // Vector all serial state
-            std::vector<std::shared_ptr<Item>> serial_state_i;
+            std::vector<std::shared_ptr<State>> serial_state_i;
 
             // All possible vector of actions
             std::vector<JointAction> all_new_action;
@@ -186,7 +186,7 @@ namespace sdm
                         // Current action
                         auto temp_action = action;
                         // Add new action
-                        temp_action.push_back(action_agent_i->toAction());
+                        temp_action.push_back(action_agent_i);
                         // Add new possibility in the vector
                         all_new_action.push_back(temp_action);
                     }
@@ -205,7 +205,7 @@ namespace sdm
                 for (const auto &action : all_new_action)
                 {
                     // Add new serial state with the state of the problem and vector of action
-                    auto next_serial_state = std::make_shared<SerialState>(this->getNumAgents(), state->toState(), action);
+                    auto next_serial_state = std::make_shared<SerialState>(this->getNumAgents(), state, action);
                     std::shared_ptr<State> next_serial_state_str = next_serial_state;
 
                     // map_serial_state_to_pointeur.emplace(next_serial_state,next_serial_state_str);
@@ -218,10 +218,10 @@ namespace sdm
             this->setJointActionToPointeur(all_new_action);
 
             all_past_action = all_new_action;
-            auto s_i = std::make_shared<DiscreteSpace>(serial_state_i);
+            auto s_i = std::make_shared<DiscreteStateSpace>(serial_state_i);
             all_serial_state.push_back(s_i);
         }
-        this->serial_state_space_ = Joint<std::shared_ptr<DiscreteSpace>>(all_serial_state);
+        this->serial_state_space_ = Joint<std::shared_ptr<DiscreteStateSpace>>(all_serial_state);
 
         // Create the vector of joint action and the pointer associated
         std::vector<JointAction> vector_joint_action;
@@ -244,14 +244,14 @@ namespace sdm
             // GO over all state
             for (const auto &state : *this->getStateSpace(agent_id))
             {
-                auto serial_state = state->toState()->toSerial();
+                auto serial_state = state->toSerial();
                 auto hidden_state = serial_state->getHiddenState();
                 auto action = serial_state->getAction();
 
                 // GO over all action
                 for (auto action_tmp : *this->getActionSpace(agent_id))
                 {
-                    auto serial_action = action_tmp->toAction();
+                    auto serial_action = action_tmp;
                     auto next_action = serial_state->getAction();
                     next_action.push_back(serial_action);
 
@@ -306,7 +306,7 @@ namespace sdm
         }
     }
 
-    std::shared_ptr<Space> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<ActionSpace> SerialMMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t);
     }
@@ -335,12 +335,12 @@ namespace sdm
         // Go over all observations of the lower-level agent
         for (const auto &next_state : *this->getStateSpace(this->current_timestep_ + 1))
         {
-            proba = this->getTransitionProbability(this->getInternalState(), serial_action, next_state->toState(), this->current_timestep_);
+            proba = this->getTransitionProbability(this->getInternalState(), serial_action, next_state, this->current_timestep_);
 
             cumul += proba;
             if (epsilon < cumul)
             {
-                this->setInternalState(next_state->toState());
+                this->setInternalState(next_state);
                 break;
             }
         }
@@ -365,7 +365,7 @@ namespace sdm
 
     std::shared_ptr<Action> SerialMMDP::getRandomAction(const std::shared_ptr<State> &, number t)
     {
-        return this->getActionSpace(t)->sample()->toAction();
+        return this->getActionSpace(t)->sample();
     }
 
 } // namespace sdm

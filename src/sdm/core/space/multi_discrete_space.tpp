@@ -1,7 +1,6 @@
 #include <sdm/core/space/multi_discrete_space.hpp>
-#include <sdm/core/variations.hpp>
 #include <sdm/exception.hpp>
-#include <sdm/utils/struct/iterator/combination_iterator.hpp>
+#include <sdm/core/space/iterator/combination_iterator.hpp>
 
 namespace sdm
 {
@@ -11,7 +10,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::shared_ptr<BaseSpace<TItem>>> &spaces, bool store_items)
+    MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces, bool store_items)
     {
         this->storeItems(store_items);
         this->setSpaces(spaces);
@@ -26,13 +25,13 @@ namespace sdm
 
     template <typename TItem>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const MultiDiscreteSpace &copy)
-        : MultiDiscreteSpace(static_cast<std::vector<std::shared_ptr<BaseSpace<TItem>>>>(copy))
+        : MultiDiscreteSpace(static_cast<std::vector<std::shared_ptr<DiscreteSpace<TItem>>>>(copy))
     {
         this->storeItems(copy.store_items_);
     }
 
-    template <bool TBool>
     template <typename TItem>
+    template <bool TBool>
     MultiDiscreteSpace<TItem>::MultiDiscreteSpace(const std::enable_if_t<TBool, std::vector<TItem>> &num_items)
     {
         this->setSpaces(num_items);
@@ -45,7 +44,7 @@ namespace sdm
     }
 
     template <typename TItem>
-    std::shared_ptr<Space> MultiDiscreteSpace<TItem>::getSpace(number index) const
+    std::shared_ptr<DiscreteSpace<TItem>> MultiDiscreteSpace<TItem>::getSpace(number index) const
     {
         return this->get(index);
     }
@@ -59,13 +58,13 @@ namespace sdm
     template <typename TItem>
     TItem MultiDiscreteSpace<TItem>::getJointItem(number idx) const
     {
-        return DiscreteSpace::getItem(idx);
+        return DiscreteSpace<TItem>::getItem(idx);
     }
 
     template <typename TItem>
     TItem MultiDiscreteSpace<TItem>::getItem(number idx) const
     {
-        return DiscreteSpace::getItem(idx);
+        return DiscreteSpace<TItem>::getItem(idx);
     }
 
     template <typename TItem>
@@ -83,7 +82,7 @@ namespace sdm
 
         for (number ag = 0; ag < num_items.size(); ++ag)
         {
-            this->push_back(std::shared_ptr<DiscreteSpace>(new DiscreteSpace<TItem>(num_items[ag])));
+            this->push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace<TItem>(num_items[ag])));
             this->num_items_ *= num_items[ag];
         }
         this->generateItems();
@@ -97,14 +96,14 @@ namespace sdm
 
         for (number ag = 0; ag < e_names.size(); ++ag)
         {
-            this->push_back(std::shared_ptr<DiscreteSpace>(new DiscreteSpace(e_names[ag])));
+            this->push_back(std::shared_ptr<DiscreteSpace<TItem>>(new DiscreteSpace(e_names[ag])));
             this->num_items_ *= e_names[ag].size();
         }
         this->generateItems();
     }
 
     template <typename TItem>
-    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<std::shared_ptr<Space>> &spaces)
+    void MultiDiscreteSpace<TItem>::setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces)
     {
         this->num_items_ = 1;
         this->clear();
@@ -120,17 +119,17 @@ namespace sdm
     template <typename TItem>
     number MultiDiscreteSpace<TItem>::getJointItemIndex(std::shared_ptr<Joint<TItem>> &jitem) const
     {
-        return DiscreteSpace::getItemIndex(jitem);
+        return DiscreteSpace<TItem>::getItemIndex(jitem);
     }
 
-    template <typename TItem>
+    // template <typename TItem>
     // number MultiDiscreteSpace<TItem>::getJointItemIndex(const std::vector<TItem> &jitem) const
     // {
     //     return DiscreteSpace::getItemIndex(jitem);
     // }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::iterator_type MultiDiscreteSpace<TItem>::begin()
+    typename MultiDiscreteSpace<TItem>::iterator_type MultiDiscreteSpace<TItem>::begin()
     {
         if (this->isStoringItems())
         {
@@ -138,22 +137,24 @@ namespace sdm
             {
                 this->generateItems();
             }
-            return DiscreteSpace::begin();
+            return DiscreteSpace<TItem>::begin();
         }
         else
         {
-            std::vector<iterator_type> begin_iterators, current_iterators, end_iterators;
+            std::vector<iterator_type> begin_iterators, end_iterators;
             for (number space_id = 0; space_id < this->getNumSpaces(); space_id++)
             {
                 begin_iterators.push_back(this->getSpace(space_id)->begin());
                 end_iterators.push_back(this->getSpace(space_id)->end());
             }
-            return std::make_shared<sdm::iterator::CombinationIterator>(begin_iterators, end_iterators);
+            auto iter = std::make_shared<sdm::iterator::CombinationIterator<TItem>>(begin_iterators, end_iterators);
+
+            return iter;
         }
     }
 
     template <typename TItem>
-    MultiDiscreteSpace<TItem>::iterator_type MultiDiscreteSpace<TItem>::end()
+    typename MultiDiscreteSpace<TItem>::iterator_type MultiDiscreteSpace<TItem>::end()
     {
         if (this->isStoringItems())
         {
@@ -161,11 +162,11 @@ namespace sdm
             {
                 this->generateItems();
             }
-            return DiscreteSpace::end();
+            return DiscreteSpace<TItem>::end();
         }
         else
         {
-            return std::make_shared<sdm::iterator::CombinationIterator>();
+            return std::make_shared<sdm::iterator::CombinationIterator<TItem>>();
         }
     }
 
@@ -179,7 +180,7 @@ namespace sdm
     template <typename TItem>
     bool MultiDiscreteSpace<TItem>::operator==(const MultiDiscreteSpace &other) const
     {
-        return DiscreteSpace::operator==(other);
+        return DiscreteSpace<TItem>::operator==(other);
     }
 
     template <typename TItem>

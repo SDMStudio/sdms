@@ -61,7 +61,7 @@ namespace sdm
          * @return the action space
          *
          */
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+        virtual std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
         /**
          * @brief Get the observation space at a specific state and given an action.
@@ -71,7 +71,7 @@ namespace sdm
          * @param t the time step
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
+        virtual std::shared_ptr<ObservationSpace> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
 
         /**
          * @brief Get the expected reward of executing a specific action in a specific belief at timestep t.

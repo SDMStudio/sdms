@@ -22,7 +22,7 @@ namespace sdm
 
     OccupancyState::OccupancyState(number num_agents, number h) : OccupancyState(num_agents, h, COMPRESSED) {}
 
-    OccupancyState::OccupancyState(number num_agents, number h, StateType stateType) : Belief(), num_agents_(num_agents), h(h), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
+    OccupancyState::OccupancyState(number num_agents, number h, StateType stateType) : Belief(), num_agents_(num_agents), h(h), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<ActionSpace>>>())
 
     {
         this->state_type = stateType;
@@ -54,7 +54,7 @@ namespace sdm
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
-          action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>()),
+          action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<ActionSpace>>>()),
           individual_hierarchical_history_vector_map_vector(occupancy_state.individual_hierarchical_history_vector_map_vector),
           joint_history_map_vector(occupancy_state.joint_history_map_vector)
     {
@@ -824,7 +824,7 @@ namespace sdm
     // ######### ACTION SPACE ######################
     // #############################################
 
-    std::shared_ptr<Space> OccupancyState::getActionSpaceAt(number t)
+    std::shared_ptr<ActionSpace> OccupancyState::getActionSpaceAt(number t)
     {
         if (this->action_space_map->find(t) != this->action_space_map->end())
         {
@@ -836,7 +836,7 @@ namespace sdm
         }
     }
 
-    void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<Space> action_space)
+    void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<ActionSpace> action_space)
     {
         this->action_space_map->emplace(t, action_space);
     }

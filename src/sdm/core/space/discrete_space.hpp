@@ -4,9 +4,9 @@
  * @brief File for DiscreteSpace class.
  * @version 1.0
  * @date 28/01/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -16,7 +16,7 @@
 #include <sdm/types.hpp>
 #include <sdm/core/joint.hpp>
 #include <sdm/core/space/space.hpp>
-#include <sdm/utils/struct/iterator/super_iterator.hpp>
+#include <sdm/core/space/iterator/super_iterator.hpp>
 
 /**
  * @namespace sdm
@@ -25,39 +25,35 @@
 namespace sdm
 {
     /**
-     * @brief The discrete space class give a way to keep all possible values of a finite space. 
-     * 
+     * @brief The discrete space class give a way to keep all possible values of a finite space.
+     *
      * In order to instantiate an object of this class, you must provide the constructor method a the list of all available values.
-     * 
-     * @tparam std::shared_ptr<TItem> The type of each element in the space. 
-     *  
+     *
+     * @tparam std::shared_ptr<TItem> The type of each element in the space.
+     *
      */
     template <typename TItem>
     class DiscreteSpace : public BaseSpace<TItem>
     {
     public:
         using value_type = TItem;
-        using iterator_type = BaseSpace<TItem>::iterator_type;
+        using iterator_type = typename BaseSpace<TItem>::iterator_type;
 
         /**
          * @brief Construct a new Discrete Space object (default)
-         * 
+         *
          */
         DiscreteSpace();
 
         /**
          * @brief Construct a new Discrete Space object
-         * 
+         *
          * @param items a list of possible items in the space
          */
         DiscreteSpace(const std::vector<TItem> &items);
 
         template <typename T>
-        DiscreteSpace(const std::vector<T> &items)
-        {
-            std::vector<TItem> titems(items.begin(), items.end());
-            *this = DiscreteSpace(titems);
-        }
+        DiscreteSpace(const std::vector<T> &items);
 
         /**
          * @brief Construct a new Discrete Space object from a list initializer
@@ -97,7 +93,7 @@ namespace sdm
         std::vector<TItem> getAll();
 
         virtual iterator_type begin();
-        
+
         virtual iterator_type end();
 
         /**
@@ -114,23 +110,13 @@ namespace sdm
          * @brief Get the item at a specific index
          */
         template <typename T>
-        TItem getItemAddress(const T &item_value)
-        {
-            for (const auto &item : *this)
-            {
-                if (item_value == *std::static_pointer_cast<T>(item))
-                {
-                    return item;
-                }
-            }
-            return nullptr;
-        }
+        TItem getItemAddress(const T &item_value);
 
         /**
          * @brief Verify is the discrete space contains the TItem;
-         * 
-         * @return true 
-         * @return false 
+         *
+         * @return true
+         * @return false
          */
         bool contains(const TItem &) const;
 
@@ -150,7 +136,7 @@ namespace sdm
 
     protected:
         using items_bimap = boost::bimaps::bimap<number, TItem>;
-        using items_bimap_value = items_bimap::value_type;
+        using items_bimap_value = typename items_bimap::value_type;
 
         /** @brief number of possible items in the space (ex: [5, 12] --> 8 items) **/
         number num_items_;
@@ -159,22 +145,28 @@ namespace sdm
         items_bimap all_items_;
         // items_bimap all_items_;
 
-
         // std::unordered_map<TItem, number> map_item_to_int;
 
         /** @brief the list of possible items without their index **/
         std::vector<TItem> list_items_;
 
         /**
-        *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
-        */
+         *  @brief Generates all joint items and maintains a bimap of indexes and corresponding pointers of joint items
+         */
         void generateItems();
         bool isGenerated();
 
         bool store_items_ = true;
     };
 
-    using DiscreteStateSpace = DiscreteSpace<std::shared_ptr<State>>;
-    using DiscreteActionSpace = DiscreteSpace<std::shared_ptr<Action>>;
+    template <typename TItem>
+    using DiscretePtrSpace = DiscreteSpace<std::shared_ptr<TItem>>;
+
+    using DiscreteItemSpace = DiscretePtrSpace<Item>;
+    using DiscreteStateSpace = DiscretePtrSpace<State>;
+    using DiscreteActionSpace = DiscretePtrSpace<Action>;
+    using DiscreteObservationSpace = DiscretePtrSpace<Observation>;
 
 } // namespace sdm
+
+#include <sdm/core/space/discrete_space.tpp>

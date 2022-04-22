@@ -18,9 +18,9 @@ namespace sdm
         using output_type = typename DeterministicDecisionRule::output_type;
 
         JointDeterministicDecisionRule();
-        JointDeterministicDecisionRule(const Joint<std::shared_ptr<DecisionRule>> &individual_decision_rules, const std::shared_ptr<Space> &action_space);
-        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<Item>>> acc_histories, std::vector<std::vector<std::shared_ptr<Item>>> actions, const std::shared_ptr<Space> &action_space);
-        JointDeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &, const std::vector<std::shared_ptr<Item>> &list_indiv_dr, const std::shared_ptr<Space> &action_space);
+        JointDeterministicDecisionRule(const Joint<std::shared_ptr<DecisionRule>> &individual_decision_rules, const std::shared_ptr<ActionSpace> &action_space);
+        JointDeterministicDecisionRule(std::vector<std::vector<std::shared_ptr<HistoryInterface>>> acc_histories, std::vector<std::vector<std::shared_ptr<Action>>> actions, const std::shared_ptr<ActionSpace> &action_space);
+        JointDeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &, const std::vector<std::shared_ptr<Action>> &list_indiv_dr, const std::shared_ptr<ActionSpace> &action_space = nullptr);
 
         std::shared_ptr<Action> act(const std::shared_ptr<HistoryInterface> &joint_history) const;
         virtual std::shared_ptr<Action> act(const std::vector<std::shared_ptr<HistoryInterface>> &joint_histories) const;

@@ -136,9 +136,9 @@ namespace sdm
 
         virtual void finalize(bool do_compression) = 0;
 
-        virtual std::shared_ptr<Space> getActionSpaceAt(number t) = 0;
+        virtual std::shared_ptr<ActionSpace> getActionSpaceAt(number t) = 0;
 
-        virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space) = 0;
+        virtual void setActionSpaceAt(number t, std::shared_ptr<ActionSpace> action_space) = 0;
 
         virtual std::shared_ptr<JointHistoryInterface> getJointHistory(std::shared_ptr<JointHistoryInterface> candidate_jhistory) = 0;
 

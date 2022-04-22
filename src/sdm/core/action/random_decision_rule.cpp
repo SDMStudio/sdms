@@ -4,11 +4,11 @@
 namespace sdm
 {
 
-    RandomDecisionRule::RandomDecisionRule(const std::shared_ptr<Space> &action_space) : action_space(action_space) {}
+    RandomDecisionRule::RandomDecisionRule(const std::shared_ptr<ActionSpace> &action_space) : action_space(action_space) {}
 
     std::shared_ptr<Action> RandomDecisionRule::act(const std::shared_ptr<HistoryInterface> &) const
     {
-        return this->action_space->sample()->toAction();
+        return this->action_space->sample();
     }
 
     double RandomDecisionRule::getProbability(const std::shared_ptr<HistoryInterface> &state, const std::shared_ptr<Action> &action) const

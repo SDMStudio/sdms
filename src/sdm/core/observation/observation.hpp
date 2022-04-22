@@ -24,6 +24,8 @@ namespace sdm
     class Observation : public Item
     {
     public:
+        using base = Observation;
+        
         virtual ~Observation() {}
         virtual std::string str() const = 0;
     };

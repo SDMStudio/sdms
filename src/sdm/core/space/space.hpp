@@ -4,11 +4,11 @@
  * @brief File for Space class
  * @version 0.1
  * @date 17/12/2020
- * 
+ *
  * @copyright Copyright (c) 2020
- * 
+ *
  * This is an abstract interface for Spaces.
- * 
+ *
  */
 #pragma once
 
@@ -18,8 +18,7 @@
 #include <sdm/core/item.hpp>
 #include <sdm/core/state/state.hpp>
 #include <sdm/core/action/action.hpp>
-#include <sdm/utils/struct/iterator.hpp>
-
+#include <sdm/core/space/iterator.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -36,11 +35,11 @@ namespace sdm
 
   /**
    * @class Space
-   * 
-   * @brief This class is an abstract interface that all spaces should inherite. 
-   * 
-   * It gives some useful general methods to use generic spaces in your algorithms. 
-   
+   *
+   * @brief This class is an abstract interface that all spaces should inherite.
+   *
+   * It gives some useful general methods to use generic spaces in your algorithms.
+
    */
   template <typename TItem>
   class BaseSpace : public std::enable_shared_from_this<BaseSpace<TItem>>
@@ -66,13 +65,12 @@ namespace sdm
     virtual std::vector<number> getDim() const = 0;
 
     std::shared_ptr<DiscreteSpace<TItem>> toDiscreteSpace();
-    
     std::shared_ptr<MultiDiscreteSpace<TItem>> toMultiDiscreteSpace();
 
     /**
      * @brief Sample a random item from the space
      */
-    virtual std::shared_ptr<TItem> sample() const { throw sdm::exception::Exception("Cannot sample Abstract space !!!"); }
+    virtual TItem sample() const { throw sdm::exception::Exception("Cannot sample Abstract space !!!"); }
 
     virtual iterator_type begin() = 0;
     virtual iterator_type end() = 0;
@@ -92,9 +90,14 @@ namespace sdm
     }
   };
 
-  using Space = BaseSpace<std::shared_ptr<Item>>;
-  using StateSpace = BaseSpace<std::shared_ptr<State>>;
-  using ObservationSpace = BaseSpace<std::shared_ptr<Observation>>;
-  using ActionSpace = BaseSpace<std::shared_ptr<Action>>;
+  template <typename TItem>
+  using PtrSpace = BaseSpace<std::shared_ptr<TItem>>;
+
+  using Space = PtrSpace<Item>;
+  using StateSpace = PtrSpace<State>;
+  using ObservationSpace = PtrSpace<Observation>;
+  using ActionSpace = PtrSpace<Action>;
 
 } // namespace sdm
+
+#include <sdm/core/space/space.tpp>

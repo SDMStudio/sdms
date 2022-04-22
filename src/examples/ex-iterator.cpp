@@ -2,8 +2,8 @@
 #include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/core/base_item.hpp>
-#include <sdm/utils/struct/iterator/super_iterator.hpp>
-#include <sdm/utils/struct/iterator/combination_iterator.hpp>
+#include <sdm/core/space/iterator/super_iterator.hpp>
+#include <sdm/core/space/iterator/combination_iterator.hpp>
 
 using namespace sdm;
 

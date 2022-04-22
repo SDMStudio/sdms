@@ -30,9 +30,9 @@ namespace sdm
                 }
 
                 // Init the coordinate space
-                this->coord_space_ = std::make_shared<DiscreteSpace>(list_possible_coord);
+                this->coord_space_ = std::make_shared<DiscreteStateSpace>(list_possible_coord);
                 // Init the state space
-                this->state_space_ = std::make_shared<MultiDiscreteSpace>(std::vector<std::shared_ptr<Space>>{this->coord_space_, this->coord_space_});
+                this->state_space_ = std::make_shared<MultiDiscreteStateSpace>(std::vector<std::shared_ptr<DiscreteStateSpace>>{this->coord_space_, this->coord_space_});
                 // Init the coordinates of the robot
                 this->coord_robot_ = this->coord_space_->getItem(0)->to<CoordState>();
 
@@ -44,14 +44,14 @@ namespace sdm
                     std::make_shared<StringAction>("up"),
                     std::make_shared<StringAction>("right"),
                     std::make_shared<StringAction>("down")};
-                this->action_space_ = std::make_shared<DiscreteSpace>(list_actions);
+                this->action_space_ = std::make_shared<DiscreteActionSpace>(list_actions);
             }
 
             RobotBin::RobotBin(Config config) : RobotBin(config.get("size_x", 3), config.get("size_y", 3))
             {
             }
 
-            std::shared_ptr<Space> RobotBin::getActionSpaceAt(const std::shared_ptr<State> &, number)
+            std::shared_ptr<ActionSpace> RobotBin::getActionSpaceAt(const std::shared_ptr<State> &, number)
             {
                 return this->action_space_;
             }
@@ -90,7 +90,7 @@ namespace sdm
                 number N = this->coord_space_->getNumItems(),
                        INDEX_JOINT_COORD = N * this->coord_space_->getItemIndex(coord_robot) + this->coord_space_->getItemIndex(coord_garbage);
                 auto state = this->state_space_->getItem(INDEX_JOINT_COORD);
-                return state->toState();
+                return state;
             }
 
             std::tuple<std::shared_ptr<State>, std::vector<double>, bool> RobotBin::step(std::shared_ptr<Action> action)

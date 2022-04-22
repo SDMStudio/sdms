@@ -28,7 +28,7 @@ namespace sdm
          * @param t time step
          * @return the action space. 
          */
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get random action.

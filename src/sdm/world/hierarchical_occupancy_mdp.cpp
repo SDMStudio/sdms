@@ -29,7 +29,7 @@ namespace sdm
         return this->low_level_agent_id_;
     }
 
-    std::shared_ptr<Space> HierarchicalOccupancyMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    std::shared_ptr<ObservationSpace> HierarchicalOccupancyMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         
         return this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), t);
@@ -49,7 +49,7 @@ namespace sdm
         // Go over all observations of the lower-level agent
         for (auto obs_n : *this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), this->step_))
         {
-            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, obs_n->toObservation(), this->step_);
+            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, obs_n, this->step_);
 
             cumul += prob;
             if (epsilon < cumul)

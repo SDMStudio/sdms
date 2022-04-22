@@ -159,7 +159,7 @@ namespace sdm
                 std::cout << "NumActions" << std::endl;
                 // Action Space
                 intermediate.clear();
-                std::vector<std::vector<std::shared_ptr<Item>>> list_items;
+                std::vector<std::vector<std::shared_ptr<Action>>> list_items;
                 index = line.find("=");
                 contenu = line.substr(index + 1);
                 std::stringstream check(contenu);
@@ -182,8 +182,8 @@ namespace sdm
                     }
                 }
                 // this->maxActions = num_max_of_actions;
-                this->action_space_ = std::make_shared<MultiDiscreteSpace>(list_items);
-                assert(std::static_pointer_cast<MultiDiscreteSpace>(this->action_space_)->getNumSpaces() == this->num_agents_);
+                this->action_space_ = std::make_shared<MultiDiscreteActionSpace>(list_items);
+                assert(std::static_pointer_cast<MultiDiscreteActionSpace>(this->action_space_)->getNumSpaces() == this->num_agents_);
             }
             else if (line.find("NumOfNodes") != std::string::npos)
             {
@@ -208,12 +208,12 @@ namespace sdm
                 // State Space
                 index = line.find("=");
                 number num_states = std::stoi(line.substr(index + 1));
-                std::vector<std::shared_ptr<Item>> list_states;
+                std::vector<std::shared_ptr<State>> list_states;
                 for (number i = 0; i < num_states; i++)
                 {
                     list_states.push_back(std::make_shared<DiscreteState>(i));
                 }
-                this->state_space_ = std::make_shared<DiscreteSpace>(list_states);
+                this->state_space_ = std::make_shared<DiscreteStateSpace>(list_states);
             }
             else if (line.find("NumOfObservations") != std::string::npos)
             {
@@ -221,13 +221,13 @@ namespace sdm
                 // Observation Space
                 index = line.find("=");
                 number num_observations = std::stoi(line.substr(index + 1));
-                std::vector<std::shared_ptr<Item>> list_obs;
+                std::vector<std::shared_ptr<Observation>> list_obs;
                 for (number i = 0; i < num_observations; i++)
                 {
                     list_obs.push_back(std::make_shared<DiscreteObservation>(i));
                 }
-                std::vector<std::vector<std::shared_ptr<Item>>> all_list_obs(this->getNumAgents(), list_obs);
-                this->observation_space_ = std::make_shared<MultiDiscreteSpace>(all_list_obs);
+                std::vector<std::vector<std::shared_ptr<Observation>>> all_list_obs(this->getNumAgents(), list_obs);
+                this->observation_space_ = std::make_shared<MultiDiscreteObservationSpace>(all_list_obs);
             }
             else if (line.find("Network") != std::string::npos)
             {
@@ -267,7 +267,7 @@ namespace sdm
                 for (const auto &state : *this->state_space_)
                 {
                     std::getline(input_file, line);
-                    start_distribution_tmp->setProbability(state->toState(), std::stod(line));
+                    start_distribution_tmp->setProbability(state, std::stod(line));
                 }
                 this->start_distribution_ = start_distribution_tmp;
             }
@@ -328,7 +328,7 @@ namespace sdm
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
                             }
                         }
-                        reward_fct->setReward(state->toState(), joint_action->toAction(), 0, joint_reward);
+                        reward_fct->setReward(state, joint_action->toAction(), 0, joint_reward);
                     }
                 }
                 this->reward_space_ = reward_fct;
@@ -363,7 +363,7 @@ namespace sdm
                         auto next_state_idx = this->getStateSpace()->toDiscreteSpace()->getItem(std::stoi(key2));
                         for (const auto &action : *this->getActionSpace())
                         {
-                            state_dynamics_tmp->setTransitionProbability(state_idx->toState(), action->toAction(), next_state_idx->toState(), prob);
+                            state_dynamics_tmp->setTransitionProbability(state_idx, action->toAction(), next_state_idx, prob);
                         }
                     }
                     std::getline(input_file, line);
@@ -428,7 +428,7 @@ namespace sdm
                             }
                             if (proba > 0.00001)
                             {
-                                observation_dynamics_tmp->setObservationProbability(nullptr, joint_action->toAction(), next_state->toState(), joint_obs->toObservation(), proba);
+                                observation_dynamics_tmp->setObservationProbability(nullptr, joint_action->toAction(), next_state, joint_obs->toObservation(), proba);
                             }
                         }
                     }

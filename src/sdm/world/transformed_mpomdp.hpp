@@ -68,7 +68,7 @@ namespace sdm
          * @param t the timestep
          * @return the state space
          */
-        std::shared_ptr<Space> getStateSpace(number t) const;
+        std::shared_ptr<StateSpace> getStateSpace(number t) const;
 
         /**
          * @brief Get the reward at timestep t when executing an action in a specific state.
@@ -143,7 +143,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number agent_id, number t) const;
 
         /**
          * @brief Get ths action space at timestep t.
@@ -151,7 +151,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        std::shared_ptr<Space> getActionSpace(number t) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number t) const;
 
         /**
          * @brief Get the action space.
@@ -159,7 +159,7 @@ namespace sdm
          * @param t time step
          * @return the action space. 
          */
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
+        std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
         /**
          * @brief Get ths observation space of agent i at timestep t.
@@ -168,7 +168,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        std::shared_ptr<Space> getObservationSpace(number agent_id, number t) const;
+        std::shared_ptr<ObservationSpace> getObservationSpace(number agent_id, number t) const;
 
         /**
          * @brief Get ths observation space at timestep t.
@@ -176,7 +176,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        std::shared_ptr<Space> getObservationSpace(number t) const;
+        std::shared_ptr<ObservationSpace> getObservationSpace(number t) const;
 
         void setInternalState(std::shared_ptr<State> state);
         

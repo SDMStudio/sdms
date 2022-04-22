@@ -57,7 +57,7 @@ namespace sdm
          * @param h the horizon
          * @return the state spaces
          */
-        std::shared_ptr<Space> selectStates(number h);
+        std::shared_ptr<StateSpace> selectStates(number h);
 
         /**
          * @brief Select one state.
@@ -69,7 +69,7 @@ namespace sdm
 
         unsigned long long num_sample_states;
 
-        std::vector<std::shared_ptr<Space>> sampled_state_space;
+        std::vector<std::shared_ptr<StateSpace>> sampled_state_space;
 
         std::string type_sampling;
     };

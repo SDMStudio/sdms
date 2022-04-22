@@ -31,7 +31,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        virtual std::shared_ptr<Space> getActionSpace(number agent_id, number t) const = 0;
+        virtual std::shared_ptr<ActionSpace> getActionSpace(number agent_id, number t) const = 0;
 
         /**
          * @brief Get ths action space at timestep t.
@@ -39,7 +39,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        virtual std::shared_ptr<Space> getActionSpace(number t) const = 0;
+        virtual std::shared_ptr<ActionSpace> getActionSpace(number t) const = 0;
     };
 
 

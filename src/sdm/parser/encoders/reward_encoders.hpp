@@ -18,15 +18,15 @@ namespace sdm
 
         struct tabular_reward_encoder : boost::static_visitor<>
         {
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<DiscreteSpace> ag_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<DiscreteItemSpace> ag_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
 
             std::shared_ptr<CooperativeRewardModel> rewards_;
 
-            tabular_reward_encoder(const std::shared_ptr<DiscreteSpace> &state_space,
-                                   const std::shared_ptr<DiscreteSpace> &ag_space,
-                                   const std::shared_ptr<MultiDiscreteSpace> &action_space,
+            tabular_reward_encoder(const std::shared_ptr<DiscreteStateSpace> &state_space,
+                                   const std::shared_ptr<DiscreteItemSpace> &ag_space,
+                                   const std::shared_ptr<MultiDiscreteActionSpace> &action_space,
                                    std::shared_ptr<CooperativeRewardModel> rewards);
 
             void operator()(const reward_entry_1_t &r1);
@@ -35,26 +35,26 @@ namespace sdm
 
         struct tabular_rewards_encoder
         {
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
-            std::shared_ptr<DiscreteSpace> agent_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
+            std::shared_ptr<DiscreteItemSpace> agent_space_;
 
-            tabular_rewards_encoder(const std::shared_ptr<DiscreteSpace> &state_space, const std::shared_ptr<DiscreteSpace> &agent_space, const std::shared_ptr<MultiDiscreteSpace> &action_space);
+            tabular_rewards_encoder(const std::shared_ptr<DiscreteStateSpace> &state_space, const std::shared_ptr<DiscreteItemSpace> &agent_space, const std::shared_ptr<MultiDiscreteActionSpace> &action_space);
 
             std::shared_ptr<CooperativeRewardModel> encode(const reward_t &r);
         };
 
         struct multi_tabular_reward_encoder : boost::static_visitor<>
         {
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<DiscreteSpace> ag_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<DiscreteItemSpace> ag_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
 
             std::shared_ptr<CompetitiveRewardModel> rewards_;
 
-            multi_tabular_reward_encoder(const std::shared_ptr<DiscreteSpace> &state_space,
-                                         const std::shared_ptr<DiscreteSpace> &ag_space,
-                                         const std::shared_ptr<MultiDiscreteSpace> &action_space,
+            multi_tabular_reward_encoder(const std::shared_ptr<DiscreteStateSpace> &state_space,
+                                         const std::shared_ptr<DiscreteItemSpace> &ag_space,
+                                         const std::shared_ptr<MultiDiscreteActionSpace> &action_space,
                                          std::shared_ptr<CompetitiveRewardModel> rewards);
 
             void operator()(const multi_reward_entry_1_t &r1);
@@ -63,11 +63,11 @@ namespace sdm
 
         struct multi_tabular_rewards_encoder
         {
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
-            std::shared_ptr<DiscreteSpace> agent_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
+            std::shared_ptr<DiscreteItemSpace> agent_space_;
 
-            multi_tabular_rewards_encoder(const std::shared_ptr<DiscreteSpace> &state_space, const std::shared_ptr<DiscreteSpace> &agent_space, const std::shared_ptr<MultiDiscreteSpace> &action_space);
+            multi_tabular_rewards_encoder(const std::shared_ptr<DiscreteStateSpace> &state_space, const std::shared_ptr<DiscreteItemSpace> &agent_space, const std::shared_ptr<MultiDiscreteActionSpace> &action_space);
 
             std::shared_ptr<CompetitiveRewardModel> encode(const multi_reward_t &r);
         };

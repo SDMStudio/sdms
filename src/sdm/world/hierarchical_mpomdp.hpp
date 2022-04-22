@@ -44,7 +44,7 @@ namespace sdm
          * @param action the action
          * @return the set of reachable states
          */
-        std::shared_ptr<Space> getObservationSpace(number t) const;
+        std::shared_ptr<ObservationSpace> getObservationSpace(number t) const;
 
         /**
          * @brief Get ths observation space of agent i at timestep t.
@@ -53,7 +53,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        std::shared_ptr<Space> getObservationSpace(number agent_id, number t) const;
+        std::shared_ptr<ObservationSpace> getObservationSpace(number agent_id, number t) const;
 
         /**
          * @brief Get the Reachablel Observations object
@@ -94,10 +94,10 @@ namespace sdm
 
     protected:
         /** @brief The transformed joint observation space */
-        std::shared_ptr<DiscreteSpace> joint_observation_space_;
+        std::shared_ptr<DiscreteObservationSpace> joint_observation_space_;
 
         /** @brief Keep transformed individual observation space for each agent */
-        Joint<std::shared_ptr<DiscreteSpace>> indiv_observation_spaces_;
+        Joint<std::shared_ptr<DiscreteObservationSpace>> indiv_observation_spaces_;
 
         using obs_bimap = boost::bimaps::bimap<std::shared_ptr<Observation>, std::shared_ptr<Observation>>;
         using obs_bimap_value = obs_bimap::value_type;

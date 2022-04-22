@@ -15,6 +15,7 @@ namespace sdm
     class Item : public std::enable_shared_from_this<Item>
     {
     public:
+        using base = Item;
 
         /** @brief Cast the item into a pointer on item. */
         virtual std::shared_ptr<Item> toItem();

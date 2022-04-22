@@ -80,14 +80,14 @@ namespace sdm
 
             // Creation of the joint decision rule
 
-            std::vector<std::vector<std::shared_ptr<Item>>> actions;
-            std::vector<std::vector<std::shared_ptr<Item>>> joint_histories;
+            std::vector<std::vector<std::shared_ptr<Action>>> actions;
+            std::vector<std::vector<std::shared_ptr<HistoryInterface>>> joint_histories;
 
             // Go over each agent
             for (number agent = 0; agent < underlying_problem->getNumAgents(); agent++)
             {
-                std::vector<std::shared_ptr<Item>> indiv_actions;
-                std::vector<std::shared_ptr<Item>> indiv_histories;
+                std::vector<std::shared_ptr<Action>> indiv_actions;
+                std::vector<std::shared_ptr<HistoryInterface>> indiv_histories;
 
                 // Go over the individual history for a precise agent
                 for (const auto &indiv_history : occupancy_state->getIndividualHistories(agent))

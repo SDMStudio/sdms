@@ -18,6 +18,7 @@
 #include <sdm/core/item.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 #include <sdm/core/joint.hpp>
+#include <sdm/core/space/iterator/combination_iterator.hpp>
 
 /**
  * @namespace sdm
@@ -34,11 +35,11 @@ namespace sdm
      */
     template <typename TItem>
     class MultiDiscreteSpace : public DiscreteSpace<TItem>,
-                               public Joint<std::shared_ptr<BaseSpace<TItem>>>
+                               public Joint<std::shared_ptr<DiscreteSpace<TItem>>>
     {
     public:
         using value_type = Joint<TItem>;
-        using iterator_type = DiscreteSpace<TItem>::iterator_type;
+        using iterator_type = typename DiscreteSpace<TItem>::iterator_type;
 
         /**
          * @brief Instantiate a default discrete space (MultiDiscreteSpace class)
@@ -49,7 +50,7 @@ namespace sdm
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
          *
          */
-        MultiDiscreteSpace(const std::vector<std::shared_ptr<BaseSpace<TItem>>> &sub_spaces, bool store_items = true);
+        MultiDiscreteSpace(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &sub_spaces, bool store_items = true);
 
         /**
          * @brief Instantiate a multi discrete space from the list its sub-spaces (as shared pointer).
@@ -105,12 +106,12 @@ namespace sdm
          * @param index the index of the space
          * @return a shared pointer on a specific space
          */
-        std::shared_ptr<Space> getSpace(number index) const;
+        std::shared_ptr<DiscreteSpace<TItem>> getSpace(number index) const;
 
         template <bool TBool = std::is_integral<TItem>::value>
         void setSpaces(const std::enable_if_t<TBool, std::vector<TItem>> &num_items);
         void setSpaces(const std::vector<std::vector<TItem>> &);
-        void setSpaces(const std::vector<std::shared_ptr<Space>> &spaces);
+        void setSpaces(const std::vector<std::shared_ptr<DiscreteSpace<TItem>>> &spaces);
 
         /*!
          * @brief Transform joint item to its index in the list of all joint items.
@@ -148,9 +149,6 @@ namespace sdm
         }
 
     protected:
-        using jitems_bimap = DiscreteSpace<TItem>::items_bimap;
-        using jitems_bimap_value = jitems_bimap::value_type;
-
         /**
          * @brief Sets the number of joint items
          *
@@ -160,7 +158,14 @@ namespace sdm
         inline std::shared_ptr<DiscreteSpace<TItem>> cast(const std::shared_ptr<BaseSpace<TItem>> &space) const;
     };
 
-    using MultiDiscreteStateSpace = MultiDiscreteSpace<State>;
-    using MultiDiscreteActionSpace = MultiDiscreteSpace<Action>;
+    template <typename TItem>
+    using MultiDiscretePtrSpace = MultiDiscreteSpace<std::shared_ptr<TItem>>;
+
+    using MultiDiscreteItemSpace = MultiDiscretePtrSpace<Item>;
+    using MultiDiscreteStateSpace = MultiDiscretePtrSpace<State>;
+    using MultiDiscreteActionSpace = MultiDiscretePtrSpace<Action>;
+    using MultiDiscreteObservationSpace = MultiDiscretePtrSpace<Observation>;
 
 } // namespace sdm
+
+#include <sdm/core/space/multi_discrete_space.tpp>

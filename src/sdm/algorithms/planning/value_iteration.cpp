@@ -114,7 +114,7 @@ namespace sdm
         max_error = std::max(max_error, std::abs(getValueFunction()->getValueAt(state, t) - getTmpValueFunction()->getValueAt(state, t)));
     }
 
-    std::shared_ptr<Space> ValueIteration::selectStates(number t)
+    std::shared_ptr<StateSpace> ValueIteration::selectStates(number t)
     {
         return getWorld()->getUnderlyingProblem()->getStateSpace(t);
     }

@@ -6,8 +6,8 @@ namespace sdm
 {
     MDP::MDP() {}
 
-    MDP::MDP(const std::shared_ptr<Space> &state_space,
-             const std::shared_ptr<Space> &action_space,
+    MDP::MDP(const std::shared_ptr<StateSpace> &state_space,
+             const std::shared_ptr<ActionSpace> &action_space,
              const std::shared_ptr<RewardModel> &reward_space,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distribution,
@@ -107,12 +107,12 @@ namespace sdm
         return this->state_dynamics_->getTransitionProbability(state, action, next_state, t);
     }
 
-    std::shared_ptr<Space> MDP::getActionSpace(number) const
+    std::shared_ptr<ActionSpace> MDP::getActionSpace(number) const
     {
         return this->action_space_;
     }
 
-    std::shared_ptr<Space> MDP::getStateSpace(number) const
+    std::shared_ptr<StateSpace> MDP::getStateSpace(number) const
     {
         return this->state_space_;
     }
@@ -169,7 +169,7 @@ namespace sdm
     }
 
     // Useless
-    std::shared_ptr<Space> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<ActionSpace> MDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return this->getActionSpace(t);
     }
@@ -184,8 +184,8 @@ namespace sdm
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
         {
 
-            auto state_space = std::static_pointer_cast<DiscreteSpace>(this->getStateSpace());
-            auto action_space = std::static_pointer_cast<DiscreteSpace>(this->getActionSpace());
+            auto state_space = std::static_pointer_cast<DiscreteStateSpace>(this->getStateSpace());
+            auto action_space = std::static_pointer_cast<DiscreteActionSpace>(this->getActionSpace());
 
             std::ostringstream res;
             number n_agents = 1;

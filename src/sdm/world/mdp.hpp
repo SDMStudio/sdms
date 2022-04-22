@@ -32,8 +32,8 @@ namespace sdm
     {
     public:
         MDP();
-        MDP(const std::shared_ptr<Space> &state_space,
-            const std::shared_ptr<Space> &action_space,
+        MDP(const std::shared_ptr<StateSpace> &state_space,
+            const std::shared_ptr<ActionSpace> &action_space,
             const std::shared_ptr<RewardModel> &reward_space,
             const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
             const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distribution,
@@ -95,7 +95,7 @@ namespace sdm
          * @param t the timestep
          * @return the state space
          */
-        std::shared_ptr<Space> getStateSpace(number t = 0) const;
+        std::shared_ptr<StateSpace> getStateSpace(number t = 0) const;
 
         /**
          * @brief Get ths action space at timestep t.
@@ -103,7 +103,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        std::shared_ptr<Space> getActionSpace(number t = 0) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number t = 0) const;
 
         /**
          * @brief Get the reward of executing action a in state s at timestep t.
@@ -137,7 +137,7 @@ namespace sdm
          */
         virtual double getTransitionProbability(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t = 0) const;
 
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
+        std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
         std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &observation, number t);
 
@@ -214,9 +214,9 @@ namespace sdm
 
         Criterion criterion_;
 
-        std::shared_ptr<Space> state_space_;
+        std::shared_ptr<StateSpace> state_space_;
 
-        std::shared_ptr<Space> action_space_;
+        std::shared_ptr<ActionSpace> action_space_;
 
         std::shared_ptr<RewardModel> reward_space_;
 
