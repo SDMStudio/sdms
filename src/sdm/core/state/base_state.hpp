@@ -65,6 +65,11 @@ namespace sdm
     virtual bool isEqual(const std::shared_ptr<State> &other, double precision = 0.) const;
     virtual bool isEqual(const BaseState &other, double precision = 0.) const;
 
+    bool operator==(const BaseState &other)
+    {
+      return this->state == other.state;
+    }
+
     TData state;
   };
 

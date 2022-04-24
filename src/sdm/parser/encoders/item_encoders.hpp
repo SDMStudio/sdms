@@ -1,6 +1,10 @@
 #pragma once
 
 #include <sdm/parser/encoders/space_encoders.hpp>
+#include <sdm/core/base_item.hpp>
+#include <sdm/core/state/base_state.hpp>
+#include <sdm/core/action/base_action.hpp>
+#include <sdm/core/observation/base_observation.hpp>
 
 namespace sdm
 {
@@ -22,18 +26,20 @@ namespace sdm
                 this->md_space_ = md_space;
             }
 
-            std::shared_ptr<typename TItem::base> operator()(number a) const
+            std::shared_ptr<typename TItem::base> operator()(number a) 
             {
                 return std::static_pointer_cast<DiscretePtrSpace<typename TItem::base>>(this->md_space_->getSpace(this->ag))->getItem(a);
             }
 
-            std::shared_ptr<typename TItem::base> operator()(const std::string &a_str) const
+            std::shared_ptr<typename TItem::base> operator()(const std::string &a_str)
             {
-                return std::static_pointer_cast<DiscretePtrSpace<typename TItem::base>>(this->md_space_->getSpace(this->ag))->getItemAddress(TItem(a_str));
+                auto item = std::make_shared<TItem>(a_str);
+                return std::static_pointer_cast<DiscretePtrSpace<typename TItem::base>>(this->md_space_->getSpace(this->ag))->getItemAddress(*item);
             }
         };
 
-        struct str_visitor
+
+            struct str_visitor
         {
             using result_type = std::string;
 
@@ -84,7 +90,7 @@ namespace sdm
             }
         };
 
-        /** 
+        /**
          * @brief encodes the input into a vector of number (vector of states)
          * "*" -> [0,1,2,3,4,...,n]
          * "s0" -> [0]
@@ -102,12 +108,12 @@ namespace sdm
                 this->space_ = space;
             }
 
-            std::vector<std::shared_ptr<typename TItem::base>> operator()(number s) const
+            std::vector<std::shared_ptr<typename TItem::base>> operator()(number s) 
             {
                 return {this->space_->getItem(s)};
             }
 
-            std::vector<std::shared_ptr<typename TItem::base>> operator()(const std::string &s_str) const
+            std::vector<std::shared_ptr<typename TItem::base>> operator()(const std::string &s_str) 
             {
                 std::vector<std::shared_ptr<typename TItem::base>> st_ptr;
                 if (s_str == "*")
@@ -116,7 +122,10 @@ namespace sdm
                         st_ptr.push_back(this->space_->getItem(s));
                 }
                 else
-                    st_ptr.push_back(this->space_->getItemAddress(TItem(s_str)));
+                {
+                    auto item = std::make_shared<TItem>(s_str);
+                    st_ptr.push_back(this->space_->getItemAddress(*item));
+                }
 
                 return st_ptr;
             }

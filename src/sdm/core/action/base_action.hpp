@@ -52,6 +52,11 @@ namespace sdm
      */
     virtual void setAction(const TAction &action) { this->action = action; }
 
+    bool operator==(const BaseAction &other)
+    {
+      return this->action == other.action;
+    }    
+    
     virtual std::string str() const
     {
       std::ostringstream res;

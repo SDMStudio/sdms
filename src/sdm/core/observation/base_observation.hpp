@@ -45,6 +45,9 @@ namespace sdm
 
     virtual std::string str() const;
 
+    bool operator==(const BaseObservation &other);
+    
+
   protected:
     TObservation observation_;
   };

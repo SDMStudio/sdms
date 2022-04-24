@@ -98,7 +98,7 @@ namespace sdm
     {
         for (const auto &item : *this)
         {
-            if (item_value.str() == std::static_pointer_cast<T>(item)->str())
+            if (*std::static_pointer_cast<T>(item) == item_value)
             {
                 return item;
             }
