@@ -203,8 +203,6 @@ namespace sdm
             }
         }
 
-        std::cout << "next_one_step_left_compressed_occupancy_state="<< next_one_step_left_compressed_occupancy_state->str()<<std::endl;
-
         return this->finalizeNextState(next_one_step_left_compressed_occupancy_state, t);
     }
 

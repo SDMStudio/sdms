@@ -44,7 +44,7 @@ namespace sdm
 
         struct Hash
         {
-            virtual bool operator()(const std::shared_ptr<State> &state) const
+            virtual size_t operator()(const std::shared_ptr<State> &state) const
             {
                 return state->hash(PWLCQValueFunction::GRANULARITY);
             }
