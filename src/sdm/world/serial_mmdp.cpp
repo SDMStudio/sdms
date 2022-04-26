@@ -180,9 +180,11 @@ namespace sdm
                 // Go over all current serial state
                 for (const auto &action : all_past_action)
                 {
-                    // Add new action to current serial state
-                    for (const auto &action_agent_i : *this->getActionSpace(i - 1))
+                    auto begin_iter = this->getActionSpace(i - 1)->begin();
+                    auto end_iter = this->getActionSpace(i - 1)->end();
+                    for (auto iter = begin_iter; !iter->equal(end_iter); iter->next())
                     {
+                        auto action_agent_i = iter->getCurrent();
                         // Current action
                         auto temp_action = action;
                         // Add new action
@@ -249,9 +251,10 @@ namespace sdm
                 auto action = serial_state->getAction();
 
                 // GO over all action
-                for (auto action_tmp : *this->getActionSpace(agent_id))
+                auto end_iter = this->getActionSpace(agent_id)->end();
+                for (auto iter = this->getActionSpace(agent_id)->begin(); !iter->equal(end_iter); iter->next())
                 {
-                    auto serial_action = action_tmp;
+                    auto serial_action = iter->getCurrent();
                     auto next_action = serial_state->getAction();
                     next_action.push_back(serial_action);
 

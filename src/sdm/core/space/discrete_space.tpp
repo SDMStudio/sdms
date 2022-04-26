@@ -96,8 +96,10 @@ namespace sdm
     template <typename T>
     TItem DiscreteSpace<TItem>::getItemAddress(const T &item_value)
     {
-        for (const auto &item : *this)
+        auto end_iter = this->end();
+        for (auto iter = this->begin(); !iter->equal(end_iter); iter = iter->next())
         {
+            auto item = iter->getCurrent();
             if (*std::static_pointer_cast<T>(item) == item_value)
             {
                 return item;
@@ -123,10 +125,12 @@ namespace sdm
 
             // Generate joint items and store in containers
             number counter = 0;
-            for (const auto &v : *this)
+            auto end_iter = this->end();
+            for (auto iter = this->begin(); !iter->equal(end_iter); iter = iter->next())
             {
-                this->all_items_.insert(items_bimap_value(counter, v));
-                this->list_items_.push_back(v);
+                auto item = iter->getCurrent();
+                this->all_items_.insert(items_bimap_value(counter, item));
+                this->list_items_.push_back(item);
                 counter++;
             }
             this->storeItems(true);

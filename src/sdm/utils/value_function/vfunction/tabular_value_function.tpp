@@ -115,6 +115,13 @@ namespace sdm
         return res.str();
     }
 
+    // template <class Hash, class KeyEqual>
+    // void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t)
+    // {
+    //     auto [action, new_value] = state->bellman_operator(this, t); 
+    //     this->setValueAt(state, new_value, t);
+    // }
+
     template <class Hash, class KeyEqual>
     std::vector<std::shared_ptr<State>> BaseTabularValueFunction<Hash, KeyEqual>::getSupport(number t)
     {

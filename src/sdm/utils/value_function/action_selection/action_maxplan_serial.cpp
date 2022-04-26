@@ -57,8 +57,11 @@ namespace sdm
         double probability = occupancy_state->getProbabilityOverIndividualHistories(agent_id, ihistory);
 
         // Go over all action possible for the current agent_id
-        for (const auto &private_action : *this->getWorld()->getUnderlyingProblem()->getActionSpace(t))
+        auto begin_iter = this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->begin();
+        auto end_iter = this->getWorld()->getUnderlyingProblem()->getActionSpace(t)->end();
+        for (auto iter = begin_iter; !iter->equal(end_iter); iter->next())
         {
+            auto private_action = iter->getCurrent();
             // Evaluate the value of executing this action in the given state & history
             action_value = this->evaluateAction(value_function, private_serial_occupancy_state, private_action, next_hyperplane, t);
 

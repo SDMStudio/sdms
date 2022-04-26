@@ -124,8 +124,10 @@ namespace sdm
             matrix_encoder m_encoder(this->state_space_->getNumItems(), this->obs_space_->getNumItems());
             std::shared_ptr<MappedMatrix<number, number>> matrix_proba = boost::apply_visitor(m_encoder, z3.probabilities);
 
-            for (const auto &state : *this->state_space_)
+            auto end_iter = this->state_space_->end();
+            for (auto iter = this->state_space_->begin(); !iter->equal(end_iter); iter = iter->next())
             {
+                auto state = iter->getCurrent();
                 for (const auto &u : u_space)
                 {
                     for (const auto &pair_next_state_vector : *matrix_proba)
@@ -150,8 +152,10 @@ namespace sdm
             state_encoder<StringState> s_encoder(this->state_space_);
             auto next_state_space = boost::apply_visitor(s_encoder, z2.next_state);
 
-            for (const auto &state : *this->state_space_)
+            auto end_iter = this->state_space_->end();
+            for (auto iter = this->state_space_->begin(); !iter->equal(end_iter); iter = iter->next())
             {
+                auto state = iter->getCurrent();
                 for (const auto &u : u_space)
                 {
                     for (const auto &next_state : next_state_space)
@@ -178,8 +182,10 @@ namespace sdm
 
             double prob = z1.probability;
 
-            for (const auto &state : *this->state_space_)
+            auto end_iter = this->state_space_->end();
+            for (auto iter = this->state_space_->begin(); !iter->equal(end_iter); iter = iter->next())
             {
+                auto state = iter->getCurrent();
                 for (const auto &u : u_space)
                 {
                     for (const auto &next_state : next_state_space)

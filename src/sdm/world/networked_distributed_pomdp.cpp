@@ -307,22 +307,25 @@ namespace sdm
                     this->n[agent_id].rewardFunction[x + ":" + u] = val;
                     std::getline(input_file, line);
                 }
-                    std::cout << "End Reward"<<std::endl;
+                std::cout << "End Reward" << std::endl;
 
                 auto reward_fct = std::make_shared<CooperativeRewardModel>();
                 for (const auto &state : *this->getStateSpace())
                 {
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(state);
-                    for (const auto &joint_action : *this->getActionSpace())
+                    auto begin_iter = this->getActionSpace()->begin();
+                    auto end_iter = this->getActionSpace()->end();
+                    for (auto iter = begin_iter; !iter->equal(end_iter); iter->next())
                     {
+                        auto joint_action = std::static_pointer_cast<JointAction>(iter->getCurrent());
                         double joint_reward = 0.0;
                         for (number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
                         {
-                            auto action_ag1 = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id1);
+                            auto action_ag1 = joint_action->get(agent_id1);
                             number idx_action_ag1 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id1)->toDiscreteSpace()->getItemIndex(action_ag1);
                             for (number agent_id2 = 0; agent_id2 < this->getNumAgents(); agent_id2++)
                             {
-                                auto action_ag2 = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id2);
+                                auto action_ag2 = joint_action->get(agent_id2);
                                 number idx_action_ag2 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id2)->toDiscreteSpace()->getItemIndex(action_ag2);
 
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
@@ -361,8 +364,11 @@ namespace sdm
                     {
                         auto state_idx = this->getStateSpace()->toDiscreteSpace()->getItem(std::stoi(key1));
                         auto next_state_idx = this->getStateSpace()->toDiscreteSpace()->getItem(std::stoi(key2));
-                        for (const auto &action : *this->getActionSpace())
+
+                        auto end_iter = this->getActionSpace()->end();
+                        for (auto iter = this->getActionSpace()->begin(); !iter->equal(end_iter); iter->next())
                         {
+                            auto action = iter->getCurrent();
                             state_dynamics_tmp->setTransitionProbability(state_idx, action, next_state_idx, prob);
                         }
                     }
@@ -407,20 +413,23 @@ namespace sdm
 
                 // Init ObservationDynamics
                 double proba /* , dynamics_proba */;
-                for (const auto &next_state : *this->getStateSpace())
+                for (auto x_iter = this->getStateSpace()->begin(); !x_iter->equal(this->getStateSpace()->end()); x_iter->next())
                 {
+                    auto next_state = x_iter->getCurrent();
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(next_state);
-                    for (const auto &joint_action : *this->getActionSpace())
+                    for (auto u_iter = this->getActionSpace()->begin(); !u_iter->equal(this->getActionSpace()->end()); u_iter->next())
                     {
-                        for (const auto &joint_obs : *this->getObservationSpace())
+                        auto joint_action = std::static_pointer_cast<JointAction>(u_iter->getCurrent());
+                        for (auto z_iter = this->getObservationSpace()->begin(); !z_iter->equal(this->getObservationSpace()->end()); z_iter->next())
                         {
+                            auto joint_obs = std::static_pointer_cast<JointObservation>(z_iter->getCurrent());
                             proba = 1.;
                             for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
                             {
-                                auto iobservation = std::static_pointer_cast<JointObservation>(joint_obs)->get(agent_id);
+                                auto iobservation = joint_obs->get(agent_id);
                                 number idx_obs_ag = this->getObservationSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iobservation);
 
-                                auto iaction = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id);
+                                auto iaction = joint_action->get(agent_id);
                                 number idx_action_ag = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iaction);
 
                                 // Compute probability
@@ -544,7 +553,6 @@ namespace sdm
         return this->n[id].observationFunction[std::to_string(y) + ":" + std::to_string(u) + ":" + std::to_string(z)];
     }
 
-
     // std::set<std::shared_ptr<Observation>> NetworkedDistributedPOMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
     // {
     //     // return this->observation_dynamics_->getReachableObservations(state, action, next_state, t);
@@ -598,7 +606,6 @@ namespace sdm
     //     return nullptr;
     // }
 
-
     // double NetworkedDistributedPOMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     // {
 
@@ -627,6 +634,5 @@ namespace sdm
     // {
     //     return std::numeric_limits<double>::infinity();
     // }
-
 
 } // namespace sdm

@@ -42,7 +42,6 @@ namespace sdm
         auto all_action = serial_state->getAction();
         all_action.push_back(action);
 
-
         auto indiv_observation_space = std::static_pointer_cast<DiscreteObservationSpace>(this->getObservationSpace(serial_state->getCurrentAgentId()));
         auto index = indiv_observation_space->find(observation);
 
@@ -67,11 +66,11 @@ namespace sdm
         auto all_action = serial_state->getAction();
         all_action.push_back(action);
 
-        // auto&& observation_space = this->serial_observation_space_.at(serial_state->getCurrentAgentId()); 
+        // auto&& observation_space = this->serial_observation_space_.at(serial_state->getCurrentAgentId());
 
         // auto&& index = observation_space->find(observation);
 
-        if (this->serial_observation_space_.at(serial_state->getCurrentAgentId())->contains(observation) && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1/*  && observation_space->getItem(index) */)
+        if (this->serial_observation_space_.at(serial_state->getCurrentAgentId())->contains(observation) && next_serial_state->getCurrentAgentId() == 0 && serial_state->getCurrentAgentId() == this->getNumAgents() - 1 /*  && observation_space->getItem(index) */)
         {
             // The probability is the same of the decpomdp, if the condition are verified
             return this->mpomdp->getDynamics(serial_state->getHiddenState(), this->getPointeurJointAction(all_action), next_serial_state->getHiddenState(), observation, t);
@@ -125,9 +124,10 @@ namespace sdm
             {
                 auto serial_state = state->toSerial();
 
-                // Go over serial action
-                for (const auto serial_action : *this->getActionSpace(agent_id))
+                auto end_iter = this->getActionSpace(agent_id)->end();
+                for (auto iter = this->getActionSpace(agent_id)->begin(); !iter->equal(end_iter); iter->next())
                 {
+                    auto serial_action = iter->getCurrent();
                     // Go over joint_obs
                     for (const auto next_state : this->getReachableStates(state, serial_action, 0))
                     {
