@@ -3,8 +3,9 @@
 #include <iostream>
 #include <locale>
 
-#include <fmt/format.h>
 #include <sdm/tools.hpp>
+#define FMT_HEADER_ONLY
+#include <fmt/format.h>
 
 namespace sdm
 {

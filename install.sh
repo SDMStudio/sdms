@@ -113,9 +113,9 @@ then
     fi
 
     # Install other libs : Hard copy Toolbar library and other required libs
-    echo -ne "- toolbar and boost_parser (building by sdms) : "
-    $SUDO cp lib/* /usr/lib/x86_64-linux-gnu
-    echo -e "installed"
+    # echo -ne "- toolbar and boost_parser (building by sdms) : "
+    # $SUDO cp lib/* /usr/lib/x86_64-linux-gnu
+    # echo -e "installed"
 
 
     # Create build directory
@@ -126,7 +126,15 @@ then
     # Build and install SDM'Studio
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
     cmake -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DCPLEX_ROOT_DIR="${CPLEX_ROOT}" .. 
-    $SUDO make -j ${PROC} install
+    make -j ${PROC} install
+  
+    if [ "${machine}" == "Linux" ]; then
+        export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH'
+        echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bashrc
+    else   
+        export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH'
+        echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bashrc
+    fi
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
