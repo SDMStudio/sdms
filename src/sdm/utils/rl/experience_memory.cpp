@@ -32,7 +32,7 @@ namespace sdm
         assert(step < this->experience_memory_.size());
 
         std::vector<sars_transition> out;
-        std::experimental::sample(this->experience_memory_[step].begin(), this->experience_memory_[step].end(), std::back_inserter(out), n, std::mt19937{std::random_device{}()});
+        std::sample(this->experience_memory_[step].begin(), this->experience_memory_[step].end(), std::back_inserter(out), n, std::mt19937{std::random_device{}()});
         return out;
     }
 
