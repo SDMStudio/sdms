@@ -7,7 +7,7 @@
 
 # Variable declaration
 CPLEX_ROOT='/opt/ibm/ILOG/CPLEX_Studio201/' # default is "/opt/ibm/ILOG/CPLEX_Studio201/"
-INSTALL_PREFIX='/usr/local/' # default is "/usr/local"
+INSTALL_PREFIX='~/.sdms' # default is "~/.sdms"
 TORCH_URL='' # default is pytorch for CPU
 PROC='4' # the default number of processors used is 4
  
@@ -117,6 +117,7 @@ then
     # $SUDO cp lib/* /usr/lib/x86_64-linux-gnu
     # echo -e "installed"
 
+
     # Create build directory
     echo -e "${LOG_SDMS}Create build directory."
     rm -rf build
@@ -126,6 +127,28 @@ then
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
     cmake -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DCPLEX_ROOT_DIR="${CPLEX_ROOT}" .. 
     make -j ${PROC} install
+  
+    if [ "${machine}" == "Linux" ]; then
+        echo -e "${LOG_SDMS}Modify environment variable PATH."
+        export PATH="${INSTALL_PREFIX}/bin:"'$PATH'
+        echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bash_profile
+
+        echo -e "${LOG_SDMS}Modify environment variable LD_LIBRARY_PATH."
+        export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH'
+        echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bash_profile
+
+        source ~/.bash_profile
+    else   
+        echo -e "${LOG_SDMS}Modify environment variable PATH."
+        export PATH="${INSTALL_PREFIX}/bin:"'$PATH'
+        echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bash_profile
+
+        echo -e "${LOG_SDMS}Modify environment variable DYLD_LIBRARY_PATH."
+        export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH'
+        echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bash_profile
+        
+        source ~/.bash_profile
+    fi
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
