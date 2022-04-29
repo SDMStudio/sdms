@@ -117,7 +117,6 @@ then
     # $SUDO cp lib/* /usr/lib/x86_64-linux-gnu
     # echo -e "installed"
 
-
     # Create build directory
     echo -e "${LOG_SDMS}Create build directory."
     rm -rf build
@@ -127,20 +126,12 @@ then
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
     cmake -DCMAKE_INSTALL_PREFIX="${INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Release -DCPLEX_ROOT_DIR="${CPLEX_ROOT}" .. 
     make -j ${PROC} install
-  
-    if [ "${machine}" == "Linux" ]; then
-        export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH'
-        echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bashrc
-    else   
-        export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH'
-        echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bashrc
-    fi
 
     # Check problem during SDMS installation
     RESULT_INSTALL_SDMS=$?
     if [ ${RESULT_INSTALL_SDMS} -eq 0 ];
     then
-        echo -e "${LOG_SDMS}Installation completed. Use 'SDMStudio --help' to see how to use it."
+        echo -e "${LOG_SDMS}Installation completed. Use 'sdms --help' to see how to use it."
     else
         echo -e "${LOG_SDMS}Something went wrong (code ${RESULT_INSTALL_SDMS}) when executing \"cmake .. && make -j install\""
         echo -e "${LOG_SDMS}Installation will stop" && exit $?

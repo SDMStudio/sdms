@@ -4,7 +4,9 @@
 #include <locale>
 
 #include <sdm/tools.hpp>
-#define FMT_HEADER_ONLY
+#ifdef __APPLE__
+    #define FMT_HEADER_ONLY
+#endif
 #include <fmt/format.h>
 
 namespace sdm
