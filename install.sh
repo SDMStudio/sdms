@@ -131,7 +131,7 @@ then
         export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH"
         echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bash_profile
 
-        source ~/.bash_profile
+        alias brc='source ~/.bash_profile'
     else   
         echo -e "${LOG_SDMS}Modify environment variable PATH."
         export PATH="${INSTALL_PREFIX}/bin:$PATH"
@@ -141,7 +141,7 @@ then
         export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$DYLD_LIBRARY_PATH"
         echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bash_profile
         
-        source ~/.bash_profile
+        alias brc='source ~/.bash_profile'
     fi
 
     # Build and install SDM'Studio
