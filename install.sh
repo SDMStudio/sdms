@@ -2,7 +2,7 @@
 # This script will install SDM'Studio on this computer. 
 # To this end, the script will install dependencies, build and install SDMS.
 # Accepts three parameters: torch_url, cplex_root, proc
-# Usage: ./install.sh --torch_url=<URL/TO/PYTORCH.zip> --cplex_root=<PATH/TO/CPLEX_Studio> --proc=<NumProc>
+# Usage: ./install.sh --install_prefix=</PATH/TO/INSTALL/DIR> --torch_url=<URL/TO/PYTORCH.zip> --cplex_root=<PATH/TO/CPLEX_Studio> --proc=<NumProc>
 
 
 # Variable declaration

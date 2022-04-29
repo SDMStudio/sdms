@@ -558,9 +558,6 @@ namespace sdm
                                         std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                         std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
-
-            problem_path = tools::getWorldPath(problem_path);
-
             std::string formalism_name;
             for (int i = 0; i < algo_name.size(); i++)
             {
