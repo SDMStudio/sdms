@@ -7,7 +7,7 @@
 
 # Variable declaration
 CPLEX_ROOT='/opt/ibm/ILOG/CPLEX_Studio201/' # default is "/opt/ibm/ILOG/CPLEX_Studio201/"
-INSTALL_PREFIX='~/.sdms' # default is "~/.sdms"
+INSTALL_PREFIX='$HOME/.sdms' # default is "$HOME/.sdms"
 TORCH_URL='' # default is pytorch for CPU
 PROC='4' # the default number of processors used is 4
  
@@ -114,7 +114,7 @@ then
 
     # Install other libs : Hard copy Toolbar library and other required libs
     echo -ne "- toolbar and boost_parser (building by sdms) : "
-    mkdir -p ${INSTALL_PREFIX} && mkdir -p ${INSTALL_PREFIX}/lib && cp lib/* {INSTALL_PREFIX}/lib
+    mkdir -p ${INSTALL_PREFIX}/lib && cp lib/* {INSTALL_PREFIX}/lib
     echo -e "installed"
 
     # Create build directory
@@ -122,27 +122,27 @@ then
     rm -rf build
     mkdir -p ./build && cd ./build
   
-    if [ "${machine}" == "Linux" ]; then
-        echo -e "${LOG_SDMS}Modify environment variable PATH."
-        export PATH="${INSTALL_PREFIX}/bin:$PATH"
-        echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bash_profile
+    # if [ "${machine}" == "Linux" ]; then
+    #     echo -e "${LOG_SDMS}Modify environment variable PATH."
+    #     export PATH="${INSTALL_PREFIX}/bin:$PATH"
+    #     echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bashrc
 
-        echo -e "${LOG_SDMS}Modify environment variable LD_LIBRARY_PATH."
-        export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH"
-        echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bash_profile
+    #     echo -e "${LOG_SDMS}Modify environment variable LD_LIBRARY_PATH."
+    #     export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH"
+    #     echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bashrc
 
-        alias brc='source ~/.bash_profile'
-    else   
-        echo -e "${LOG_SDMS}Modify environment variable PATH."
-        export PATH="${INSTALL_PREFIX}/bin:$PATH"
-        echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bash_profile
+    #     # alias brc='source ~/.bashrc'
+    # else   
+    #     echo -e "${LOG_SDMS}Modify environment variable PATH."
+    #     export PATH="${INSTALL_PREFIX}/bin:$PATH"
+    #     echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bashrc
 
-        echo -e "${LOG_SDMS}Modify environment variable DYLD_LIBRARY_PATH."
-        export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$DYLD_LIBRARY_PATH"
-        echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bash_profile
+    #     echo -e "${LOG_SDMS}Modify environment variable DYLD_LIBRARY_PATH."
+    #     export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$DYLD_LIBRARY_PATH"
+    #     echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bashrc
         
-        alias brc='source ~/.bash_profile'
-    fi
+    #     # alias brc='source ~/.bash_profile'
+    # fi
 
     # Build and install SDM'Studio
     echo -e "${LOG_SDMS}Build and install SDM'Studio."
