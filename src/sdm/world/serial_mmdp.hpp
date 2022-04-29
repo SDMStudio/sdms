@@ -21,7 +21,6 @@
 #include <sdm/core/distribution.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
 
-#include <sdm/core/space/multi_space.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 
 #include <unordered_map>
@@ -100,7 +99,7 @@ namespace sdm
          *
          * @return the set of states
          */
-        std::shared_ptr<Space> getStateSpace(number t = 0) const;
+        std::shared_ptr<StateSpace> getStateSpace(number t = 0) const;
 
         /**
          * @brief Get the reachable next states
@@ -116,7 +115,7 @@ namespace sdm
          *
          * @return the set of actions
          */
-        std::shared_ptr<Space> getActionSpace(number t = 0) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number t = 0) const;
 
         /**
          * @brief Get the Action Space at a specific time step and a precise agent
@@ -125,7 +124,7 @@ namespace sdm
          * @param t
          * @return std::shared_ptr<Space>
          */
-        std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number agent_id, number t) const;
 
         /**
          * @brief Get the reward
@@ -159,7 +158,7 @@ namespace sdm
          * @param t time step
          * @return the action space.
          */
-        std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
+        std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &observation, number t);
 
         /**
          * @brief Reset the environment and return initial observation.
@@ -193,7 +192,7 @@ namespace sdm
          * @brief Refer to the Serial State Space
          *
          */
-        Joint<std::shared_ptr<DiscreteSpace>> serial_state_space_;
+        Joint<std::shared_ptr<DiscreteStateSpace>> serial_state_space_;
 
         /**
          * @brief Map (serial state, seial action) to Set of reachable seial states
@@ -214,6 +213,10 @@ namespace sdm
         std::unordered_map<SerialState, std::shared_ptr<State>> map_serial_state_to_pointeur;
 
         std::shared_ptr<Distribution<std::shared_ptr<State>>> distribution_serial;
+
+        int current_timestep_;
+
+        std::shared_ptr<State> internal_state_;
 
         /**
          * @brief Initialize Serial State Space

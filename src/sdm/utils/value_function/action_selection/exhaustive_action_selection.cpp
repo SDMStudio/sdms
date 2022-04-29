@@ -9,21 +9,21 @@ namespace sdm
 
     Pair<std::shared_ptr<Action>, double> ExhaustiveActionSelection::getGreedyActionAndValue(const std::shared_ptr<ValueFunctionInterface> &value_function, const std::shared_ptr<State> &state, number t)
     {
-        
+
         std::shared_ptr<Action> best_action;
         double max = -std::numeric_limits<double>::max(), tmp;
 
         // Go over all actions
         auto action_space = this->getWorld()->getActionSpaceAt(state, t);
-        for (const auto &action : *action_space)
+        auto action_end_iter = action_space->end();
+        for (auto action_iter = action_space->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            // Cast the action
-            auto casted_action = action->toAction();
+            auto action = action_iter->getCurrent();
 
             // Determine the value of the backup for a precise action
-            if (max < (tmp = value_function->getQValueAt(state, casted_action, t)))
+            if (max < (tmp = value_function->getQValueAt(state, action, t)))
             {
-                best_action = casted_action;
+                best_action = action;
                 max = tmp;
             }
         }

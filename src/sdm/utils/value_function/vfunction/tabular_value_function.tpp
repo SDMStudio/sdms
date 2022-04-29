@@ -73,19 +73,15 @@ namespace sdm
     }
 
     template <class Hash, class KeyEqual>
-    void BaseTabularValueFunction<Hash, KeyEqual>::save(std::string)
+    void BaseTabularValueFunction<Hash, KeyEqual>::save(std::string filename)
     {
-        // std::ofstream ofs("mabc.txt");
-        // boost::archive::binary_oarchive output_archive(ofs);
-        // // this->serialize(output_archive,0);
-        // this->representation[0].serialize(output_archive,0);
-        // ofs.close();
+        BoostSerializable<BaseTabularValueFunction>::save(filename);
     }
 
     template <class Hash, class KeyEqual>
-    void BaseTabularValueFunction<Hash, KeyEqual>::load(std::string)
+    void BaseTabularValueFunction<Hash, KeyEqual>::load(std::string filename)
     {
-        // BoostSerializable<BaseTabularValueFunction>::load(filename);
+        BoostSerializable<BaseTabularValueFunction>::load(filename);
     }
 
     template <class Hash, class KeyEqual>
@@ -118,6 +114,13 @@ namespace sdm
         res << "</tabular_value_function>" << std::endl;
         return res.str();
     }
+
+    // template <class Hash, class KeyEqual>
+    // void BaseTabularValueFunction<Hash, KeyEqual>::updateValueAt(const std::shared_ptr<State> &state, number t)
+    // {
+    //     auto [action, new_value] = state->bellman_operator(this, t); 
+    //     this->setValueAt(state, new_value, t);
+    // }
 
     template <class Hash, class KeyEqual>
     std::vector<std::shared_ptr<State>> BaseTabularValueFunction<Hash, KeyEqual>::getSupport(number t)

@@ -68,10 +68,10 @@ namespace sdm
         }
     }
     template <class TIndex, class T, class Hash, class KeyEqual>
-    bool MappedVector<TIndex, T, Hash, KeyEqual>::isExist(const TIndex&i) const
+    bool MappedVector<TIndex, T, Hash, KeyEqual>::isExist(const TIndex &i) const
     {
         auto iterator = this->find(i);
-        return (iterator == this->end() ) ? false : true;
+        return (iterator == this->end()) ? false : true;
     }
 
     template <class TIndex, class T, class Hash, class KeyEqual>
@@ -358,17 +358,22 @@ namespace sdm
     {
         using boost::serialization::make_nvp;
 
+        std::cout << "1" << std::endl;
         archive &boost::serialization::base_object<std::unordered_map<TIndex, T, Hash, KeyEqual>>(*this);
+        std::cout << "2" << std::endl;
         archive &make_nvp("default_value", default_value_);
         archive &make_nvp("size", size_);
         archive &make_nvp("PRECISION", PRECISION);
 
+        std::cout << "3" << std::endl;
         archive &make_nvp("bmin", bmin);
         archive &make_nvp("bmax", bmax);
 
+        std::cout << "4" << std::endl;
         if (v_indexes.size() > 0)
             archive &make_nvp("vector_indexes", v_indexes);
 
+        std::cout << "5" << std::endl;
         if (bmin)
         {
             archive &make_nvp("pair_min", pmin);
@@ -377,6 +382,7 @@ namespace sdm
         {
             archive &make_nvp("pair_max", pmax);
         }
+        std::cout << "6" << std::endl;
     }
 
 } // namespace sdm
@@ -404,7 +410,7 @@ namespace std
             }
             for (const auto &v : rounded)
             {
-                //Combine the hash of the current vector with the hashes of the previous ones
+                // Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
             return seed;

@@ -78,9 +78,12 @@ namespace sdm
                 for (const auto &observation : selectObservations(state, action, t))
                 {
                     // Determine the state for a given state, action and observation
-                    auto next_state = getWorld()->getNextStateAndProba(state, action, observation, t).first;
+                    auto [next_state, proba] = getWorld()->getNextStateAndProba(state, action, observation, t);
                     // Recursive explore
-                    explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
+                    if (proba > 0)
+                    {
+                        explore(next_state, cost_so_far + getWorld()->getDiscount(t) * getWorld()->getReward(state, action, t), t + 1);
+                    }
                 }
 
                 // Update the value function (backward update)
@@ -108,18 +111,21 @@ namespace sdm
         std::shared_ptr<Observation> selected_observation;
 
         // Select next observation
-        auto observation_space = getWorld()->getObservationSpaceAt(state, action->toAction(), t);
-        for (const auto &observation : *observation_space)
+        auto observation_space = getWorld()->getObservationSpaceAt(state, action, t);
+
+        auto obs_end_iter = observation_space->end();
+        for (auto obs_iter = observation_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto observation = obs_iter->getCurrent();
             // Get the next state and probability
-            auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action->toAction(), observation->toObservation(), t);
+            auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action, observation, t);
 
             // Compute error correlated to this next state
             error = transition_proba * excess(next_state, 0, t + 1);
             if (error > biggest_error)
             {
                 biggest_error = error;
-                selected_observation = observation->toObservation();
+                selected_observation = observation;
             }
         }
         return {selected_observation};
@@ -210,29 +216,5 @@ namespace sdm
     }
 
     std::string HSVI::getAlgorithmName() { return "HSVI"; }
-
-    void HSVI::saveParams(std::string filename, std::string format)
-    {
-        std::ofstream ofs;
-        ofs.open(filename + format, std::ios::out | std::ios::app);
-
-        if ((format == ".md"))
-        {
-            ofs << "## " << filename << "(PARAMS)" << std::endl;
-
-            ofs << " | MAX_TRIAL | MAX_TIME | Error |  Horizon | p_o  | p_b | p_c | " << std::endl;
-            ofs << " | --------- | -------- | ----- |  ------- | ---  | --- | --- | " << std::endl;
-            ofs << " | " << num_max_trials;
-            ofs << " | " << time_max;
-            ofs << " | " << error;
-            ofs << " | " << getWorld()->getHorizon();
-            ofs << " | " << OccupancyState::PRECISION;
-            ofs << " | " << Belief::PRECISION;
-            ofs << " | " << PrivateOccupancyState::PRECISION_COMPRESSION;
-            ofs << " | " << std::endl
-                << std::endl;
-        }
-        ofs.close();
-    }
 
 } // namespace sdm

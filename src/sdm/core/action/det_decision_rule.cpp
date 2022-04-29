@@ -4,18 +4,7 @@ namespace sdm
 {
     DeterministicDecisionRule::DeterministicDecisionRule() {}
 
-    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_histories, const std::vector<std::shared_ptr<Item>> &n_actions, const std::shared_ptr<Space> &action_space)
-    {
-        assert(acc_histories.size() == n_actions.size());
-        if (action_space != nullptr)
-            this->action_space = action_space->toDiscreteSpace();
-        for (std::size_t i = 0; i < acc_histories.size(); i++)
-        {
-            this->setProbability(acc_histories[i]->toState()->toHistory(), n_actions[i]->toAction(), 1);
-        }
-    }
-
-    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_histories, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<Space> &action_space)
+    DeterministicDecisionRule::DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_histories, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<ActionSpace> &action_space)
     {
         if (action_space != nullptr)
             this->action_space = action_space->toDiscreteSpace();

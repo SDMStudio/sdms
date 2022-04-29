@@ -67,14 +67,13 @@ namespace sdm
          * 
          * @return TItem& the item 
          */
-        virtual TItem &operator*() = 0;
+        virtual TItem &getCurrent() = 0;
 
-        /**
-         * @brief Get the address of the item.
-         * 
-         * @return TItem* the address of the item
-         */
-        virtual TItem *operator->() = 0;
+
+        friend TItem &operator*(const std::shared_ptr<Iterator<TItem>> &iterator)
+        {
+            return iterator->getCurrent();
+        }
 
         friend bool operator==(const std::shared_ptr<Iterator> &iterator1, const std::shared_ptr<Iterator> &iterator2)
         {
@@ -91,15 +90,6 @@ namespace sdm
             return iterator->operator++();
         }
 
-        friend TItem &operator*(const std::shared_ptr<Iterator> &iterator)
-        {
-            return iterator->operator*();
-        }
-
-        // friend TItem *operator->(const std::shared_ptr<iterator> &iterator)
-        // {
-        //     return iterator->operator->();
-        // }
     };
 
     using ItemIterator = Iterator<std::shared_ptr<Item>>;

@@ -2,8 +2,8 @@
 #include <sdm/types.hpp>
 #include <sdm/core/item.hpp>
 #include <sdm/core/base_item.hpp>
-#include <sdm/utils/struct/iterator/super_iterator.hpp>
-#include <sdm/utils/struct/iterator/combination_iterator.hpp>
+#include <sdm/core/space/iterator/super_iterator.hpp>
+#include <sdm/core/space/iterator/combination_iterator.hpp>
 
 using namespace sdm;
 
@@ -24,9 +24,9 @@ int main(int argc, char **argv)
     std::cout << "------ SuperIterator -------" << std::endl;
 
     // Iterate over items and display them
-    for (auto item_iterator = begin_iterator; item_iterator != end_iterator; item_iterator->operator++())
+    for (auto item_iterator = begin_iterator; !item_iterator->equal(end_iterator); item_iterator->next())
     {
-        std::cout << (*item_iterator)->str() << std::endl;
+        std::cout << item_iterator->getCurrent()->str() << std::endl;
     }
 
     // Add the 3 items in a list
@@ -43,13 +43,13 @@ int main(int argc, char **argv)
     // Instanciate a combination iterator that will iterate over all combination of the two lists
     std::vector<std::shared_ptr<ItemIterator>> begins{begin_iterator, begin_iterator}, ends{end_iterator, end_iterator};
 
-    std::shared_ptr<ItemIterator> begin_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator>(begins, ends);
-    std::shared_ptr<ItemIterator> end_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator>();
+    std::shared_ptr<ItemIterator> begin_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator<std::shared_ptr<Item>>>(begins, ends);
+    std::shared_ptr<ItemIterator> end_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator<std::shared_ptr<Item>>>();
 
     std::cout << "------ CombinationIterator -------" << std::endl;
     // Iterate over items and display them
-    for (auto item_iterator = begin_combination_iterator; item_iterator != end_combination_iterator; item_iterator->operator++())
+    for (auto item_iterator = begin_combination_iterator; !item_iterator->equal(end_combination_iterator); item_iterator->next())
     {
-        std::cout << (*item_iterator)->str() << std::endl;
+        std::cout << item_iterator->getCurrent()->str() << std::endl;
     }
 }

@@ -6,9 +6,9 @@ namespace sdm
 {
     POSG::POSG() {}
 
-    POSG::POSG(const std::shared_ptr<Space> &state_space,
-               const std::shared_ptr<Space> &action_space,
-               const std::shared_ptr<Space> &obs_space,
+    POSG::POSG(const std::shared_ptr<StateSpace> &state_space,
+               const std::shared_ptr<ActionSpace> &action_space,
+               const std::shared_ptr<ObservationSpace> &obs_space,
                const std::shared_ptr<RewardModel> &reward,
                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
@@ -33,100 +33,112 @@ namespace sdm
     {
         if (this->getStateSpace()->isDiscrete() && this->getActionSpace()->isDiscrete())
         {
-            auto state_space = std::static_pointer_cast<DiscreteSpace>(this->getStateSpace());
-            auto action_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getActionSpace());
-            auto obs_space = std::static_pointer_cast<MultiDiscreteSpace>(this->getObservationSpace(0));
+            auto state_space = std::static_pointer_cast<DiscreteStateSpace>(this->getStateSpace());
+            auto action_space = std::static_pointer_cast<MultiDiscreteActionSpace>(this->getActionSpace());
+            auto obs_space = std::static_pointer_cast<MultiDiscreteObservationSpace>(this->getObservationSpace(0));
 
             std::ostringstream res;
             number n_agents = this->getNumAgents();
-
 
             res << "agents: " << n_agents << std::endl;
             res << "discount: " << this->getDiscount() / 1.0 << std::endl;
             res << "values: \"" << ((this->criterion_ == Criterion::COST_MIN) ? "cost" : "reward") << "\"" << std::endl;
             res << "states: " << state_space->getNumItems() << std::endl;
             res << "start: " << std::endl;
-            for (const auto &initial_state : *this->getStateSpace(0))
-            {
-                res << std::static_pointer_cast<DiscreteDistribution<std::shared_ptr<State>>>(this->getStartDistribution())->getProbability(initial_state->toState()) << " ";
-            }
 
+            auto istate_end_iter = this->getStateSpace(0)->end();
+            for (auto istate_iter = this->getStateSpace(0)->begin(); !istate_iter->equal(istate_end_iter); istate_iter = istate_iter->next())
+            {
+                auto initial_state = istate_iter->getCurrent();
+                res << std::static_pointer_cast<DiscreteDistribution<std::shared_ptr<State>>>(this->getStartDistribution())->getProbability(initial_state) << " ";
+            }
 
             // Action space
             res << "actions: \n";
             for (number ag = 0; ag < n_agents; ag++)
             {
-                res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(ag))->getNumItems() << "\n";
+                res << std::static_pointer_cast<DiscreteActionSpace>(action_space->getSpace(ag))->getNumItems() << "\n";
             }
 
             // Observation space
             res << "observations: \n";
             for (number ag = 0; ag < n_agents; ag++)
             {
-                res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
+                res << std::static_pointer_cast<DiscreteObservationSpace>(obs_space->getSpace(ag))->getNumItems() << "\n";
             }
 
-
-            for (const auto &state : *state_space)
+            auto state_end_iter = state_space->end();
+            for (auto state_iter = state_space->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                for (const auto &action : *action_space)
+                auto state = state_iter->getCurrent();
+                auto action_end_iter = action_space->end();
+                for (auto action_iter = action_space->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
                 {
-                    for (const auto &next_state : *state_space)
+                    auto action = action_iter->getCurrent();
+                    auto next_state_end_iter = state_space->end();
+                    for (auto next_state_iter = state_space->begin(); !next_state_iter->equal(next_state_end_iter); next_state_iter = next_state_iter->next())
                     {
-
+                        auto next_state = next_state_iter->getCurrent();
                         res << "T: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
-                            res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                            auto action_agent_i = std::static_pointer_cast<JointAction>(action)->get(agent);
+                            res << std::static_pointer_cast<DiscreteActionSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(state)
                             << " : " << state_space->getItemIndex(next_state)
-                            << " : " << this->getTransitionProbability(state->toState(), action->toAction(), next_state->toState())
+                            << " : " << this->getTransitionProbability(state, action, next_state)
                             << std::endl;
                     }
                 }
             }
 
-            for (const auto &next_state : *state_space)
+            for (auto state_iter = state_space->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                for (const auto &action : *action_space)
+                auto next_state = state_iter->getCurrent();
+                auto action_end_iter = action_space->end();
+                for (auto action_iter = action_space->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
                 {
-                    for (const auto &observation : *obs_space)
+                    auto action = action_iter->getCurrent();
+                    auto observation_end_iter = obs_space->end();
+                    for (auto observation_iter = obs_space->begin(); !observation_iter->equal(observation_end_iter); observation_iter = observation_iter->next())
                     {
+                        auto observation = observation_iter->getCurrent();
                         res << "O: ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
-                            res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                            auto action_agent_i = std::static_pointer_cast<JointAction>(action)->get(agent);
+                            res << std::static_pointer_cast<DiscreteActionSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                         }
                         res << ": " << state_space->getItemIndex(next_state) << " : ";
                         for (number agent = 0; agent < n_agents; ++agent)
                         {
-                            auto obs_agent_i = std::static_pointer_cast<JointItem>(observation)->get(agent);
-                            res << std::static_pointer_cast<DiscreteSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
+                            auto obs_agent_i = std::static_pointer_cast<JointObservation>(observation)->get(agent);
+                            res << std::static_pointer_cast<DiscreteObservationSpace>(obs_space->getSpace(agent))->getItemIndex(obs_agent_i) << " ";
                         }
-                        res << ": " << this->getObservationProbability(next_state->toState(), action->toAction(), next_state->toState(), observation->toObservation(), 0) << std::endl;
+                        res << ": " << this->getObservationProbability(next_state, action, next_state, observation, 0) << std::endl;
                     }
                 }
             }
 
-
-            for (const auto &state : *state_space)
+            for (auto state_iter = state_space->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                for (const auto &action : *action_space)
+                auto state = state_iter->getCurrent();
+                auto action_end_iter = action_space->end();
+                for (auto action_iter = action_space->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
                 {
+                    auto action = action_iter->getCurrent();
                     res << "R: ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {
-                        auto action_agent_i = std::static_pointer_cast<JointItem>(action)->get(agent);
-                        res << std::static_pointer_cast<DiscreteSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
+                        auto action_agent_i = std::static_pointer_cast<JointAction>(action)->get(agent);
+                        res << std::static_pointer_cast<DiscreteActionSpace>(action_space->getSpace(agent))->getItemIndex(action_agent_i) << " ";
                     }
                     res << ": " << state_space->getItemIndex(state)
                         << " : ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {
-                        res << this->getReward(state->toState(), action->toAction(), agent, 0) << " ";
+                        res << this->getReward(state, action, agent, 0) << " ";
                     }
 
                     res << std::endl;

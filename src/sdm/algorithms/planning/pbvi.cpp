@@ -29,9 +29,11 @@ namespace sdm
 
         // Go over all observations of the lower-level agent
         auto obs_space = getWorld()->getObservationSpaceAt(state, sampled_action, t);
-        for (auto obs_n : *obs_space)
+        auto obs_end_iter = obs_space->end();
+        for (auto obs_iter = obs_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
-            std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n->toObservation(), t);
+            auto obs_n = obs_iter->getCurrent();
+            std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n, t);
 
             cumul += proba;
             if (epsilon < cumul)
@@ -62,7 +64,7 @@ namespace sdm
         }
         for (number t = 0; t < getWorld()->getHorizon(); t++)
         {
-            sampled_state_space.push_back(std::make_shared<DiscreteSpace>(tools::set2vector(list_states[t])));
+            sampled_state_space.push_back(std::make_shared<DiscreteStateSpace>(tools::set2vector(list_states[t])));
         }
     }
 
@@ -75,7 +77,7 @@ namespace sdm
             {
                 list_states.insert(selectOneState(t));
             }
-            sampled_state_space.push_back(std::make_shared<DiscreteSpace>(tools::set2vector(list_states)));
+            sampled_state_space.push_back(std::make_shared<DiscreteStateSpace>(tools::set2vector(list_states)));
         }
     }
 
@@ -89,7 +91,7 @@ namespace sdm
         return current_state;
     }
 
-    std::shared_ptr<Space> PBVI::selectStates(number t)
+    std::shared_ptr<StateSpace> PBVI::selectStates(number t)
     {
         return sampled_state_space[t];
     }

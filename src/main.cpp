@@ -16,21 +16,23 @@ namespace po = boost::program_options;
 void print_version()
 {
   std::cout << std::endl
-            << "SDMS Version :\t" << 1.0 << std::endl;
+            << "SDM'Studio Version :\t" << "1.0" << std::endl;
   std::cout << "CXX Version  :\t" << 17 << std::endl;
   std::cout << "CXX Compiler :\t"
             << "clang" << std::endl;
   std::cout << "Authors      :\t"
-            << "David Albert" << std::endl
+            << "David Albert, Jilles Dibangoye" << std::endl;
+  std::cout << "Contact      :\t"
+            << "david.albert@cegetel.net" << std::endl
             << std::endl;
 }
 
 void print_help()
 {
   std::cout << std::endl
-            << "Usage : SDMStudio COMMAND" << std::endl
+            << "Usage : sdms COMMAND" << std::endl
             << std::endl;
-  std::cout << "The best solver for sequential decision making problems." << std::endl
+  std::cout << "A solver for Partial Observable Multiagent Sequential Decision Making." << std::endl
             << std::endl;
   std::cout << "Commands:" << std::endl;
   std::cout << "  algorithms\t\tDisplay all available algorithms." << std::endl;
@@ -41,7 +43,7 @@ void print_help()
   std::cout << "  version\t\tShow the version." << std::endl;
   std::cout << "  worlds\t\tDisplay all available worlds." << std::endl
             << std::endl;
-  std::cout << "Run 'SDMStudio COMMAND --help' for more information on a command." << std::endl
+  std::cout << "Run 'sdms COMMAND --help' for more information on a command." << std::endl
             << std::endl;
 }
 

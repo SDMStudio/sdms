@@ -186,4 +186,17 @@ namespace sdm
         res << "</MappedMatrix>" << std::endl;
         return res.str();
     }
+
+
+    template <class TLig, class TCol, class TValue>
+    template <class Archive>
+    void MappedMatrix<TLig, TCol, TValue>::serialize(Archive &archive, const unsigned int)
+    {
+        using boost::serialization::make_nvp;
+
+        archive &boost::serialization::base_object<RecursiveMap<TLig, MappedVector<TCol, TValue>>>(*this);
+        archive &make_nvp("dim", dim_);
+        archive &make_nvp("default_value", default_value_);
+    }
+
 } // namespace sdm

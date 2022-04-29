@@ -29,9 +29,9 @@ namespace sdm
     {
     public:
         MPOMDP();
-        MPOMDP(const std::shared_ptr<Space> &state_space,
-               const std::shared_ptr<Space> &action_space,
-               const std::shared_ptr<Space> &obs_space,
+        MPOMDP(const std::shared_ptr<StateSpace> &state_space,
+               const std::shared_ptr<ActionSpace> &action_space,
+               const std::shared_ptr<ObservationSpace> &obs_space,
                const std::shared_ptr<RewardModel> &reward,
                const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
                const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
@@ -49,7 +49,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpace(number agent_id, number t) const;
+        virtual std::shared_ptr<ObservationSpace> getObservationSpace(number agent_id, number t) const;
 
         /**
          * @brief Get ths observation space at timestep t.
@@ -57,7 +57,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpace(number t = 0) const;
+        virtual std::shared_ptr<ObservationSpace> getObservationSpace(number t = 0) const;
         
         virtual std::string toStdFormat();
 

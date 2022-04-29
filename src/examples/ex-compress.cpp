@@ -47,10 +47,10 @@ int main(int argc, char **argv)
 		{
 			std::cout << "\n\033[1;31m#> TIMESTEP = " << t + 1 << "\033[0m\n";
 
-			auto oaction = omdp_world->getActionSpaceAt(ostate, t)->sample()->toAction();
+			auto oaction = omdp_world->getActionSpaceAt(ostate, t)->sample();
 			std::cout << "\n\033[1;34m#> ACTION \033[0m\n" << *oaction << "\n\n";
 
-			auto oobservation = omdp_world->getObservationSpaceAt(ostate, oaction, t)->sample()->toObservation();
+			auto oobservation = omdp_world->getObservationSpaceAt(ostate, oaction, t)->sample();
 			std::cout << "\n\033[1;34m#> OBSERVATION \033[0m\n" << *oobservation << "\n\n";
 
 			// Compute the next compressed occupancy state;

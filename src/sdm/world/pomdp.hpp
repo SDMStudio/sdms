@@ -28,9 +28,9 @@ namespace sdm
     {
     public:
         POMDP();
-        POMDP(const std::shared_ptr<Space> &state_space,
-              const std::shared_ptr<Space> &action_space,
-              const std::shared_ptr<Space> &obs_space,
+        POMDP(const std::shared_ptr<StateSpace> &state_space,
+              const std::shared_ptr<ActionSpace> &action_space,
+              const std::shared_ptr<ObservationSpace> &obs_space,
               const std::shared_ptr<RewardModel> &reward,
               const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
               const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,
@@ -45,7 +45,7 @@ namespace sdm
          * @param t the timestep
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpace(number t = 0) const;
+        virtual std::shared_ptr<ObservationSpace> getObservationSpace(number t = 0) const;
 
         /**
          * @brief Get reachable observations
@@ -85,7 +85,7 @@ namespace sdm
         std::shared_ptr<Observation> sampleNextObservation(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t);
 
     protected:
-        std::shared_ptr<Space> observation_space_;
+        std::shared_ptr<ObservationSpace> observation_space_;
         std::shared_ptr<ObservationDynamicsInterface> observation_dynamics_;
     };
 } // namespace sdm

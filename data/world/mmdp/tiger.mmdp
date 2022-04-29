@@ -1,0 +1,30 @@
+agents: 2
+discount: 1.0
+values: "reward"
+states: "tiger-left"   "tiger-right"
+start:
+"uniform"
+actions:
+"open-left" "open-right" "listen"
+"open-left" "open-right" "listen"
+T: "*" :
+"uniform"
+T: "listen" "listen" :
+"identity"
+R: "listen" "listen" : "*" : -2
+R: "open-left" "open-left" : "tiger-left" : -50
+R: "open-right" "open-right" : "tiger-right" : -50
+R: "open-left" "open-left" : "tiger-right" : +20
+R: "open-right" "open-right" : "tiger-left" : +20
+R: "open-left" "open-right" : "tiger-left" : -100
+R: "open-left" "open-right" : "tiger-right" : -100
+R: "open-right" "open-left" : "tiger-left" : -100
+R: "open-right" "open-left" : "tiger-right" : -100
+R: "open-left" "listen" : "tiger-left" : -101
+R: "listen" "open-right" : "tiger-right" : -101
+R: "listen" "open-left" : "tiger-left" : -101
+R: "open-right" "listen" : "tiger-right" : -101
+R: "listen" "open-right" : "tiger-left" : 9
+R: "listen" "open-left" : "tiger-right" : 9
+R: "open-right" "listen" : "tiger-left" : 9
+R: "open-left" "listen" : "tiger-right" : 9

@@ -169,9 +169,10 @@ namespace sdm
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
         // Go over all actions
-        for (const auto &u : *underlying_problem->getActionSpace(t))
+        auto action_end_iter = underlying_problem->getActionSpace(t)->end();
+        for (auto action_iter = underlying_problem->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            auto action = u->toAction();
+            auto action = action_iter->getCurrent();
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 // Compute coefficient related to a(u|o)
@@ -203,9 +204,11 @@ namespace sdm
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
         // Go over all actions
-        for (const auto &u : *underlying_problem->getActionSpace(t))
+
+        auto action_end_iter = underlying_problem->getActionSpace(t)->end();
+        for (auto action_iter = underlying_problem->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            auto action = u->toAction();
+            auto action = action_iter->getCurrent();
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 auto belief = occupancy_state->getBeliefAt(joint_history);
@@ -240,9 +243,10 @@ namespace sdm
         expr = var[this->getNumber(this->getVarNameWeight(0))];
 
         // Go over all actions
-        for (const auto &u : *underlying_problem->getActionSpace(t))
+        auto action_end_iter = underlying_problem->getActionSpace(t)->end();
+        for (auto action_iter = underlying_problem->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            auto action = u->toAction();
+            auto action = action_iter->getCurrent();
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
                 auto belief = occupancy_state->getBeliefAt(joint_history);

@@ -12,9 +12,9 @@ namespace sdm
     {
     public:
         POSG();
-        POSG(const std::shared_ptr<Space> &state_space,
-             const std::shared_ptr<Space> &action_space,
-             const std::shared_ptr<Space> &obs_space,
+        POSG(const std::shared_ptr<StateSpace> &state_space,
+             const std::shared_ptr<ActionSpace> &action_space,
+             const std::shared_ptr<ObservationSpace> &obs_space,
              const std::shared_ptr<RewardModel> &reward,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
              const std::shared_ptr<ObservationDynamicsInterface> &obs_dynamics,

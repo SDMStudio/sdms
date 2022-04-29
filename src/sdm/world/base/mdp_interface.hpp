@@ -69,7 +69,7 @@ namespace sdm
          * @param t the timestep
          * @return the state space
          */
-        virtual std::shared_ptr<Space> getStateSpace(number t = 0) const = 0;
+        virtual std::shared_ptr<StateSpace> getStateSpace(number t = 0) const = 0;
 
         /**
          * @brief Get ths action space at timestep t.
@@ -77,7 +77,7 @@ namespace sdm
          * @param t the timestep
          * @return the action space
          */
-        virtual std::shared_ptr<Space> getActionSpace(number t = 0) const = 0;
+        virtual std::shared_ptr<ActionSpace> getActionSpace(number t = 0) const = 0;
 
         /**
          * @brief Get the reward at timestep t when executing an action in a specific state.

@@ -4,9 +4,9 @@
  * @brief File that contains the implementation of the belief mdp process class.
  * @version 1.0
  * @date 03/02/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -29,14 +29,13 @@ namespace sdm
     /**
      * @brief This class provides a way to transform a POMDP into belief MDP formalism.
      *
-     * This problem reformulation can be used to solve the underlying POMDP thanks to 
-     * standard dynamic programming algorithms. 
-     *  
+     * This problem reformulation can be used to solve the underlying POMDP thanks to
+     * standard dynamic programming algorithms.
+     *
      */
     template <class TBelief>
     class BaseBeliefMDP : virtual public SolvableByMDP,
-                           virtual public BeliefMDPInterface,
-                           public GymInterface
+                          virtual public BeliefMDPInterface
     {
     public:
         BaseBeliefMDP();
@@ -53,48 +52,48 @@ namespace sdm
 
         /**
          * @brief Get the action space at a specific belief and time step.
-         * 
-         * The time dependency is required in extensive-form games in which some agents 
-         * have a different action space. 
-         * 
+         *
+         * The time dependency is required in extensive-form games in which some agents
+         * have a different action space.
+         *
          * @param belief the belief
          * @param t the time step
-         * @return the action space 
-         * 
+         * @return the action space
+         *
          */
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
+        virtual std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &belief, number t = 0);
 
         /**
-         * @brief Get the observation space at a specific state and given an action. 
-         * 
+         * @brief Get the observation space at a specific state and given an action.
+         *
          * @param belief the belief
          * @param action the action
          * @param t the time step
-         * @return the observation space 
+         * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
+        virtual std::shared_ptr<ObservationSpace> getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t);
 
         /**
-         * @brief Get the expected reward of executing a specific action in a specific belief at timestep t. 
-         * 
-         * The time dependency can be required in non-stationnary problems.   
-         * 
+         * @brief Get the expected reward of executing a specific action in a specific belief at timestep t.
+         *
+         * The time dependency can be required in non-stationnary problems.
+         *
          * @param belief the belief
          * @param action the action
          * @param t the time step
          * @return the reward
-         * 
+         *
          */
         virtual double getReward(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
 
         /**
          * @brief Get the expected next value
-         * 
+         *
          * @param value_function a pointer on the value function to use to perform the calculus.
          * @param belief the state on which to evaluate the next expected value
-         * @param action the action executed 
+         * @param action the action executed
          * @param t the time step
-         * @return double 
+         * @return double
          */
         virtual double getExpectedNextValue(const std::shared_ptr<ValueFunction> &value_function, const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, number t = 0);
 
@@ -102,10 +101,10 @@ namespace sdm
 
         /**
          * @brief Get the next generic state (i.e. belief, occupancy state, etc).
-         * 
-         * This function returns the next occupancy state. To do so, we check in the MDP graph the existance 
-         * of an edge (action / observation) starting from the current occupancy state. If exists, we return 
-         * the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba" 
+         *
+         * This function returns the next occupancy state. To do so, we check in the MDP graph the existance
+         * of an edge (action / observation) starting from the current occupancy state. If exists, we return
+         * the associated next belief. Otherwise, we compute the next belief using  "computeNextStateAndProba"
          * function and add the edge from the current belief to the next belief in the graph.
          *
          * @param state the current state
@@ -129,12 +128,12 @@ namespace sdm
         virtual std::shared_ptr<Action> getRandomAction(const std::shared_ptr<State> &state, number t);
 
         /**
-         * @brief Get the MDP graph. 
-         * 
-         * In the case where the variables `store_states` and `store_actions` are set to true, 
-         * we iteratively construct and save the graph of state transitions. 
-         * 
-         * @return the graph representing a markov decision process 
+         * @brief Get the MDP graph.
+         *
+         * In the case where the variables `store_states` and `store_actions` are set to true,
+         * we iteratively construct and save the graph of state transitions.
+         *
+         * @return the graph representing a markov decision process
          */
         std::shared_ptr<Graph<std::shared_ptr<State>, Pair<std::shared_ptr<Action>, std::shared_ptr<Observation>>>> getMDPGraph();
         std::vector<std::shared_ptr<State>> getStoredStates() const;
@@ -168,17 +167,17 @@ namespace sdm
 
         /**
          * @brief Compute the state transition in order to return next state and associated probability.
-         * 
-         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state. 
+         *
+         * This function can be modify in an inherited class to define a belief MDP with a different representation of the belief state.
          * (i.e. OccupancyMDP inherit from BaseBeliefMDP with TBelief = OccupancyState)
-         * 
+         *
          * @param belief the belief
          * @param action the action
          * @param observation the observation
          * @param t the timestep
          * @return the couple (next state, transition probability in the next state)
-         * 
-         * 
+         *
+         *
          */
         virtual Pair<std::shared_ptr<State>, double> computeNextStateAndProbability(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);
         virtual Pair<std::shared_ptr<State>, double> computeSampledNextState(const std::shared_ptr<State> &belief, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t = 0);

@@ -31,8 +31,8 @@ namespace sdm
     {
     public:
         MMDP();
-        MMDP(const std::shared_ptr<Space> &state_space,
-             const std::shared_ptr<Space> &action_space,
+        MMDP(const std::shared_ptr<StateSpace> &state_space,
+             const std::shared_ptr<ActionSpace> &action_space,
              const std::shared_ptr<RewardModel> &reward,
              const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
              const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,
@@ -40,8 +40,8 @@ namespace sdm
              double discount = 0.99,
              Criterion criterion = Criterion::REW_MAX);
 
-        std::shared_ptr<Space> getActionSpace(number t = 0) const;
-        std::shared_ptr<Space> getActionSpace(number agent_id, number t) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number t = 0) const;
+        std::shared_ptr<ActionSpace> getActionSpace(number agent_id, number t) const;
         std::string toStdFormat();
     };
 

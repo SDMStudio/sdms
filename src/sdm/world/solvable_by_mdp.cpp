@@ -12,7 +12,7 @@ namespace sdm
 
     SolvableByMDP::SolvableByMDP(const std::shared_ptr<MDPInterface> &mdp, Config config) : mdp(mdp)
     {
-        this->initial_state_ = this->mdp->getStateSpace(0)->sample()->toState();
+        this->initial_state_ = this->mdp->getStartDistribution()->sample();
     }
 
     SolvableByMDP::SolvableByMDP(Config config)
@@ -48,17 +48,17 @@ namespace sdm
     //     auto observation_space = this->getObservationSpaceAt(state,action,t);
     //     for (const auto &next_state : *observation_space)
     //     {
-    //         double tmp = this->mdp->getTransitionProbability(state, action, next_state->toState(), t) * hsvi->do_excess(next_state->toState(), 0, t + 1);
+    //         double tmp = this->mdp->getTransitionProbability(state, action, next_state, t) * hsvi->do_excess(next_state, 0, t + 1);
     //         if (tmp > max)
     //         {
     //             max = tmp;
-    //             argmax = next_state->toState();
+    //             argmax = next_state;
     //         }
     //     }
     //     return argmax;
     // }
 
-    std::shared_ptr<Space> SolvableByMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<ActionSpace> SolvableByMDP::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return std::dynamic_pointer_cast<MDPInterface>(this->mdp)->getActionSpace(t);
     }
@@ -108,10 +108,10 @@ namespace sdm
         return ub->getGreedyActionAndValue(s, h);
     }
 
-    std::shared_ptr<Space> SolvableByMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
+    std::shared_ptr<ObservationSpace> SolvableByMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
         auto reachable_set = this->mdp->getReachableStates(state, action, t);
-        return std::make_shared<DiscreteSpace>(std::vector<std::shared_ptr<State>>(reachable_set.begin(), reachable_set.end()));
+        return std::make_shared<DiscreteObservationSpace>(std::vector<std::shared_ptr<Observation>>(reachable_set.begin(), reachable_set.end()));
     }
 
     Pair<std::shared_ptr<State>, double> SolvableByMDP::getNextState(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
@@ -122,6 +122,21 @@ namespace sdm
     Pair<std::shared_ptr<State>, double> SolvableByMDP::getNextStateAndProba(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<Observation> &observation, number t)
     {
         return state->next(this->mdp, action, observation, t);
+    }
+
+    std::shared_ptr<Action> SolvableByMDP::getRandomAction(const std::shared_ptr<State> &state, number t)
+    {
+        return this->getUnderlyingMDP()->getRandomAction(state, t);
+    }
+
+    std::shared_ptr<State> SolvableByMDP::reset()
+    {
+        return this->getUnderlyingMDP()->reset();
+    }
+
+    std::tuple<std::shared_ptr<State>, std::vector<double>, bool> SolvableByMDP::step(std::shared_ptr<Action> action)
+    {
+        return this->getUnderlyingMDP()->step(action);
     }
 
 }

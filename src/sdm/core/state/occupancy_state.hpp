@@ -99,7 +99,7 @@ namespace sdm
          * @param number the agent identifier
          */
         virtual const std::set<std::shared_ptr<HistoryInterface>> &getIndividualHistories(number ag_id) const;
-
+        
         /**
          * @brief Get the set of individual histories that are in the support of the occupancy state (for all agents).
          */
@@ -210,8 +210,8 @@ namespace sdm
         virtual double product(const std::shared_ptr<AlphaVector> &alpha);
         virtual double product(const std::shared_ptr<BetaVector> &beta, const std::shared_ptr<Action> &action);
 
-        virtual std::shared_ptr<Space> getActionSpaceAt(number t);
-        virtual void setActionSpaceAt(number t, std::shared_ptr<Space> action_space);
+        virtual std::shared_ptr<ActionSpace> getActionSpaceAt(number t);
+        virtual void setActionSpaceAt(number t, std::shared_ptr<ActionSpace> action_space);
         virtual void setup();
         virtual void normalize();
 
@@ -275,7 +275,7 @@ namespace sdm
         virtual void setProbabilityOverIndividualHistories();
         virtual void setupPrivateOccupancyStates();
 
-        std::shared_ptr<std::unordered_map<number, std::shared_ptr<Space>>> action_space_map;
+        std::shared_ptr<std::unordered_map<number, std::shared_ptr<ActionSpace>>> action_space_map;
 
         // necessary for now for phoMDP
         std::vector<std::shared_ptr<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>> individual_hierarchical_history_vector_map_vector;

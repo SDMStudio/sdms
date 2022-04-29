@@ -21,8 +21,7 @@ namespace sdm
   public:
     DeterministicDecisionRule();
     DeterministicDecisionRule(const DeterministicDecisionRule &copy);
-    DeterministicDecisionRule(const std::vector<std::shared_ptr<Item>> &acc_states, const std::vector<std::shared_ptr<Item>> &n_actions, const std::shared_ptr<Space> &action_space = nullptr);
-    DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<Space> &action_space = nullptr);
+    DeterministicDecisionRule(const std::vector<std::shared_ptr<HistoryInterface>> &acc_states, const std::vector<std::shared_ptr<Action>> &n_actions, const std::shared_ptr<ActionSpace> &action_space = nullptr);
 
     /**
      * @brief Get the action deducted from a given state
@@ -70,7 +69,7 @@ namespace sdm
 
   protected:
     std::map<std::shared_ptr<HistoryInterface>, std::shared_ptr<Action>> map_history_to_action_;
-    std::shared_ptr<DiscreteSpace> action_space;
+    std::shared_ptr<DiscreteActionSpace> action_space;
   };
 } // namespace sdm
 

@@ -36,23 +36,16 @@ int main(int argc, char **argv)
 
     std::cout << "----------------------------------------" << std::endl;
     std::cout << "\033[1;31m#> REWARD (standard version)\033[0m" << std::endl;
-    for (const auto &s : *mpomdp_from_ndpomdp->getStateSpace(0))
+    auto s_end_iter = mpomdp_from_ndpomdp->getStateSpace(0)->end();
+    for (auto s_iter = mpomdp_from_ndpomdp->getStateSpace(0)->begin(); !s_iter->equal(s_end_iter); s_iter = s_iter->next())
     {
-        for (const auto &a : *mpomdp_from_ndpomdp->getActionSpace(0))
+        auto s = s_iter->getCurrent();
+        auto a_end_iter = mpomdp_from_ndpomdp->getActionSpace(0)->end();
+        for (auto a_iter = mpomdp_from_ndpomdp->getActionSpace(0)->begin(); !a_iter->equal(a_end_iter); a_iter = a_iter->next())
         {
-            std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s->toState(), a->toAction()) << std::endl;
+            auto a = a_iter->getCurrent();
+            std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s, a) << std::endl;
         }
     }
-
-
-    // std::cout << "----------------------------------------" << std::endl;
-    // std::cout << "\033[1;31m#> TRANSITION (standard version)\033[0m" << std::endl;
-    // for (const auto &s : *mpomdp_from_ndpomdp->getStateSpace(0))
-    // {
-    //     for (const auto &a : *mpomdp_from_ndpomdp->getActionSpace(0))
-    //     {
-    //         std::cout << "R(" << *s << ", " << *a << ")=" << mpomdp_from_ndpomdp->getReward(s->toState(), a->toAction()) << std::endl;
-    //     }
-    // }
 
 } // END main

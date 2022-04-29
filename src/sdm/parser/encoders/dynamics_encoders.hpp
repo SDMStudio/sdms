@@ -23,16 +23,16 @@ namespace sdm
         class state_transition_encoder : boost::static_visitor<>
         {
         protected:
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<DiscreteSpace> agent_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<DiscreteItemSpace> agent_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
 
             std::shared_ptr<TabularStateDynamics> state_dynamics_;
 
         public:
-            state_transition_encoder(const std::shared_ptr<DiscreteSpace> &st_space,
-                                     const std::shared_ptr<DiscreteSpace> &ag_space,
-                                     const std::shared_ptr<MultiDiscreteSpace> &act_space,
+            state_transition_encoder(const std::shared_ptr<DiscreteStateSpace> &st_space,
+                                     const std::shared_ptr<DiscreteItemSpace> &ag_space,
+                                     const std::shared_ptr<MultiDiscreteActionSpace> &act_space,
                                      const std::shared_ptr<TabularStateDynamics> &state_dynamics);
 
             void operator()(const transition_entry_1_t &t1);
@@ -47,12 +47,12 @@ namespace sdm
         class state_dynamics_encoder
         {
         protected:
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<DiscreteSpace> agent_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<DiscreteItemSpace> agent_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
 
         public:
-            state_dynamics_encoder(const std::shared_ptr<DiscreteSpace> &state_space, const std::shared_ptr<DiscreteSpace> &agent_space, const std::shared_ptr<MultiDiscreteSpace> &action_space);
+            state_dynamics_encoder(const std::shared_ptr<DiscreteStateSpace> &state_space, const std::shared_ptr<DiscreteItemSpace> &agent_space, const std::shared_ptr<MultiDiscreteActionSpace> &action_space);
             std::shared_ptr<TabularStateDynamics> encode(const transition_t &transits);
         };
 
@@ -62,17 +62,17 @@ namespace sdm
          */
         struct observation_transition_encoder : boost::static_visitor<>
         {
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<DiscreteSpace> agent_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
-            std::shared_ptr<MultiDiscreteSpace> obs_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<DiscreteItemSpace> agent_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
+            std::shared_ptr<MultiDiscreteObservationSpace> obs_space_;
 
             std::shared_ptr<TabularObservationDynamicsAS> obs_dynamics_;
 
-            observation_transition_encoder(const std::shared_ptr<DiscreteSpace> &st_space,
-                                           const std::shared_ptr<DiscreteSpace> &ag_space,
-                                           const std::shared_ptr<MultiDiscreteSpace> &act_space,
-                                           const std::shared_ptr<MultiDiscreteSpace> &obs_space,
+            observation_transition_encoder(const std::shared_ptr<DiscreteStateSpace> &st_space,
+                                           const std::shared_ptr<DiscreteItemSpace> &ag_space,
+                                           const std::shared_ptr<MultiDiscreteActionSpace> &act_space,
+                                           const std::shared_ptr<MultiDiscreteObservationSpace> &obs_space,
                                            const std::shared_ptr<TabularObservationDynamicsAS> &dynamics);
 
             void operator()(const observation_entry_1_t &z1);
@@ -83,13 +83,13 @@ namespace sdm
         class obs_dynamics_encoder
         {
         protected:
-            std::shared_ptr<DiscreteSpace> state_space_;
-            std::shared_ptr<DiscreteSpace> agent_space_;
-            std::shared_ptr<MultiDiscreteSpace> action_space_;
-            std::shared_ptr<MultiDiscreteSpace> obs_space_;
+            std::shared_ptr<DiscreteStateSpace> state_space_;
+            std::shared_ptr<DiscreteItemSpace> agent_space_;
+            std::shared_ptr<MultiDiscreteActionSpace> action_space_;
+            std::shared_ptr<MultiDiscreteObservationSpace> obs_space_;
 
         public:
-            obs_dynamics_encoder(const std::shared_ptr<DiscreteSpace> &state_space, const std::shared_ptr<DiscreteSpace> &agent_space, const std::shared_ptr<MultiDiscreteSpace> &action_space, const std::shared_ptr<MultiDiscreteSpace> &obs_space);
+            obs_dynamics_encoder(const std::shared_ptr<DiscreteStateSpace> &state_space, const std::shared_ptr<DiscreteItemSpace> &agent_space, const std::shared_ptr<MultiDiscreteActionSpace> &action_space, const std::shared_ptr<MultiDiscreteObservationSpace> &obs_space);
             std::shared_ptr<TabularObservationDynamicsAS> encode(const observation_t &observs, std::shared_ptr<StateDynamicsInterface> state_dynamics);
         };
 

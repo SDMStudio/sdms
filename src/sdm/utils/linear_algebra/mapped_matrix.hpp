@@ -1,12 +1,12 @@
 /**
  * @file mapped_vector.hpp
  * @author David Albert (david.albert@insa-lyon.fr)
- * @brief 
+ * @brief
  * @version 0.1
  * @date 07/01/2021
- * 
+ *
  * @copyright Copyright (c) 2021
- * 
+ *
  */
 #pragma once
 
@@ -19,11 +19,11 @@
 namespace sdm
 {
     /**
-     * @brief Mapped matrices are matrices that use map to store values. Can be view as a sparse matrix with templated indexes. 
-     * 
+     * @brief Mapped matrices are matrices that use map to store values. Can be view as a sparse matrix with templated indexes.
+     *
      * @tparam TLig the type of index for the lines
      * @tparam TCol the type of index for the colums
-     * @tparam TValue the type of value (default : `double`) 
+     * @tparam TValue the type of value (default : `double`)
      */
     template <typename TLig, typename TCol, typename TValue = double>
     class MappedMatrix : public RecursiveMap<TLig, MappedVector<TCol, TValue>>, public MatrixInterface<TLig, TCol, TValue>
@@ -56,10 +56,13 @@ namespace sdm
 
         std::string str() const;
 
-        std::vector<Pair<TLig,TCol>> getIndexes();
-        std::vector<std::tuple<TLig,TCol,TValue>> getAllElement();
+        std::vector<Pair<TLig, TCol>> getIndexes();
+        std::vector<std::tuple<TLig, TCol, TValue>> getAllElement();
 
+        friend class boost::serialization::access;
 
+        template <class Archive>
+        void serialize(Archive &archive, const unsigned int);
     };
 } // namespace sdm
 #include <sdm/utils/linear_algebra/mapped_matrix.tpp>
@@ -76,7 +79,7 @@ namespace std
             size_t seed = 0;
             for (const auto &v : in)
             {
-                //Combine the hash of the current vector with the hashes of the previous ones
+                // Combine the hash of the current vector with the hashes of the previous ones
                 sdm::hash_combine(seed, v);
             }
         }

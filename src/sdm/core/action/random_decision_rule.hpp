@@ -21,7 +21,7 @@ namespace sdm
     class RandomDecisionRule : public DecisionRule
     {
     public:
-        RandomDecisionRule(const std::shared_ptr<Space> &action_space);
+        RandomDecisionRule(const std::shared_ptr<ActionSpace> &action_space);
 
         /**
          * @brief Get the action deducted from a given state
@@ -52,7 +52,7 @@ namespace sdm
         std::string str() const;
 
     protected:
-        std::shared_ptr<Space> action_space;
+        std::shared_ptr<ActionSpace> action_space;
     };
 
 } // namespace sdm

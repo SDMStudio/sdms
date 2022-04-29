@@ -38,10 +38,9 @@ namespace sdm
     {
         auto action_selector = this->getActionSelection();
         if (!action_selector)
-        {
             throw sdm::exception::Exception("Action selector not set. Please use the method <ValueFunction>::setActionSelector.");
-        }
-        return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t);
+        else
+            return this->getActionSelection()->getGreedyActionAndValue(this->getptr(), state, t);
     }
 
     std::shared_ptr<SolvableByDP> ValueFunctionInterface::getWorld() const

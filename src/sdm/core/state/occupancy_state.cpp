@@ -22,7 +22,7 @@ namespace sdm
 
     OccupancyState::OccupancyState(number num_agents, number h) : OccupancyState(num_agents, h, COMPRESSED) {}
 
-    OccupancyState::OccupancyState(number num_agents, number h, StateType stateType) : Belief(), num_agents_(num_agents), h(h), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>())
+    OccupancyState::OccupancyState(number num_agents, number h, StateType stateType) : Belief(), num_agents_(num_agents), h(h), action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<ActionSpace>>>())
 
     {
         this->state_type = stateType;
@@ -31,6 +31,7 @@ namespace sdm
             this->tuple_of_maps_from_histories_to_private_occupancy_states_.push_back({});
             this->weight_of_private_occupancy_state_.push_back({});
             this->private_ihistory_map_.push_back({});
+            this->all_list_ihistories_.push_back({});
             //
             this->individual_hierarchical_history_vector_map_vector.push_back(std::make_shared<std::unordered_map<number, std::vector<std::shared_ptr<JointHistoryInterface>>>>());
         }
@@ -53,7 +54,7 @@ namespace sdm
           all_list_ihistories_(occupancy_state.all_list_ihistories_),
           map_joint_history_to_belief_(occupancy_state.map_joint_history_to_belief_),
           ihistories_to_jhistory_(occupancy_state.ihistories_to_jhistory_),
-          action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<Space>>>()),
+          action_space_map(std::make_shared<std::unordered_map<number, std::shared_ptr<ActionSpace>>>()),
           individual_hierarchical_history_vector_map_vector(occupancy_state.individual_hierarchical_history_vector_map_vector),
           joint_history_map_vector(occupancy_state.joint_history_map_vector)
     {
@@ -181,9 +182,10 @@ namespace sdm
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (auto jobs : *pomdp->getObservationSpace(t))
+                auto obs_end_iter = pomdp->getObservationSpace(t)->end();
+                for (auto obs_iter = pomdp->getObservationSpace(t)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
                 {
-                    auto joint_observation = jobs->toObservation();
+                    auto joint_observation = obs_iter->getCurrent();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
                         // Get the next belief and p(z_{t+1} | b_t, u_t)
@@ -822,7 +824,7 @@ namespace sdm
     // ######### ACTION SPACE ######################
     // #############################################
 
-    std::shared_ptr<Space> OccupancyState::getActionSpaceAt(number t)
+    std::shared_ptr<ActionSpace> OccupancyState::getActionSpaceAt(number t)
     {
         if (this->action_space_map->find(t) != this->action_space_map->end())
         {
@@ -834,7 +836,7 @@ namespace sdm
         }
     }
 
-    void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<Space> action_space)
+    void OccupancyState::setActionSpaceAt(number t, std::shared_ptr<ActionSpace> action_space)
     {
         this->action_space_map->emplace(t, action_space);
     }
@@ -888,9 +890,10 @@ namespace sdm
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (auto jobs : *pomdp->getObservationSpace(t))
+                auto obs_end_iter = pomdp->getObservationSpace(t)->end();
+                for (auto obs_iter = pomdp->getObservationSpace(t)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
                 {
-                    auto joint_observation = jobs->toObservation();
+                    auto joint_observation = obs_iter->getCurrent();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
                         // Get the next belief and p(z_{t+1} | b_t, u_t)

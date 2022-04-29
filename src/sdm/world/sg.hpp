@@ -16,8 +16,8 @@ namespace sdm
     {
     public:
         SG();
-        SG(const std::shared_ptr<Space> &state_space,
-           const std::shared_ptr<Space> &action_space,
+        SG(const std::shared_ptr<StateSpace> &state_space,
+           const std::shared_ptr<ActionSpace> &action_space,
            const std::shared_ptr<RewardModel> &reward,
            const std::shared_ptr<StateDynamicsInterface> &state_dynamics,
            const std::shared_ptr<Distribution<std::shared_ptr<State>>> &start_distrib,

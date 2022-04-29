@@ -296,6 +296,12 @@ namespace sdm
         return res.str();
     }
 
+    // void PWLCValueFunction::updateValueAt(const std::shared_ptr<State> &state, number t)
+    // {
+    //     auto [action, alpha] = state->bellman_operator(this, t); 
+    //     this->representation[this->isInfiniteHorizon() ? 0 : t]->addHyperplaneAt(state, alpha, t);
+    // }
+
     size_t PWLCValueFunction::getSize(number t) const
     {
         return this->representation[this->isInfiniteHorizon() ? 0 : t].size();

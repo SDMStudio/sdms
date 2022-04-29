@@ -33,13 +33,15 @@ namespace sdm
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
             // Go over all action
-            for (const auto &action : *mpomdp->getActionSpace(t))
+            auto action_end_iter = mpomdp->getActionSpace(t)->end();
+            for (auto action_iter = mpomdp->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
+                auto action = action_iter->getCurrent();
                 // Compute \sum_{x} s(o,x)* discount * [ r(x,o) + \sum_{x_,z_} p(x,u,x_,z_,) * next_hyperplan(<o,z_>,x_)]
-                weight = this->getWeight(value_function, occupancy_state, joint_history, action->toAction(), this->current_hyperplane, t);
+                weight = this->getWeight(value_function, occupancy_state, joint_history, action, this->current_hyperplane, t);
 
                 //<! 1.b get variable a(u|o)
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history));
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action, joint_history));
 
                 //<! 1.c set coefficient of variable a(u|o) i.e., s(x,o)  [ r(x,u) + \gamma \sum_{x_,z_} P(x_,z_|x,u) * \hyperplan_i(x_,o_)  ]
                 obj.setLinearCoef(var[recover], weight);

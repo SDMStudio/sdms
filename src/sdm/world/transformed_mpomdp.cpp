@@ -29,7 +29,7 @@ namespace sdm
         return this->mpomdp_->getStartDistribution();
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getStateSpace(number t) const
+    std::shared_ptr<StateSpace> TransformedMPOMDP::getStateSpace(number t) const
     {
         return this->mpomdp_->getStateSpace(t);
     }
@@ -92,27 +92,27 @@ namespace sdm
         return this->getTransitionProbability(state, action, next_state, t) * this->getObservationProbability(state, action, next_state, observation, t);
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getActionSpace(number t) const
+    std::shared_ptr<ActionSpace> TransformedMPOMDP::getActionSpace(number t) const
     {
         return this->mpomdp_->getActionSpace(t);
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getActionSpace(number agent_id, number t) const
+    std::shared_ptr<ActionSpace> TransformedMPOMDP::getActionSpace(number agent_id, number t) const
     {
         return this->mpomdp_->getActionSpace(agent_id, t);
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getActionSpaceAt(const std::shared_ptr<State> &observation, number t)
+    std::shared_ptr<ActionSpace> TransformedMPOMDP::getActionSpaceAt(const std::shared_ptr<State> &observation, number t)
     {
         return this->mpomdp_->getActionSpaceAt(observation, t);
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getObservationSpace(number agent_id, number t) const
+    std::shared_ptr<ObservationSpace> TransformedMPOMDP::getObservationSpace(number agent_id, number t) const
     {
         return this->mpomdp_->getObservationSpace(agent_id, t);
     }
 
-    std::shared_ptr<Space> TransformedMPOMDP::getObservationSpace(number t) const
+    std::shared_ptr<ObservationSpace> TransformedMPOMDP::getObservationSpace(number t) const
     {
         return this->mpomdp_->getObservationSpace(t);
     }

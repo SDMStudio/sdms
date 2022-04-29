@@ -9,13 +9,13 @@
 
 using namespace sdm;
 
-int main()
+int main(int argc, char **argv)
 {
-	std::string filename = sdm::config::PROBLEM_PATH + "dpomdp/mabc.dpomdp";
+	std::string filename = (argc > 1) ? argv[1] : "mabc.dpomdp";
 	number horizon = 10, discount = 1, memory = 1;
 
 	// Parse the problem file
-	auto problem = sdm::parser::parse_file(filename);
+	auto problem = sdm::parser::parseMPOMDP(filename);
 	// Set parameters
 	problem->setHorizon(horizon);
 	problem->setDiscount(discount);

@@ -323,13 +323,13 @@ namespace sdm
             std::transform(algo_name.begin(), algo_name.end(), algo_name.begin(), [](unsigned char c)
                            { return std::tolower(c); });
 
-            if (algo_name == "qlearning")
+            if ((algo_name.find("qlearning") != string::npos) || (algo_name.find("QLearning") != string::npos) )
             {
-                algorithm = std::make_shared<QLearning>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                algorithm = std::make_shared<QLearning>(problem, experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
             }
-            else if (algo_name == "sarsa")
+            else if ((algo_name.find("sarsa") != string::npos) || (algo_name.find("SARSA") != string::npos))
             {
-                algorithm = std::make_shared<SARSA>(std::dynamic_pointer_cast<GymInterface>(problem), experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
+                algorithm = std::make_shared<SARSA>(problem, experience_memory, qvalue, qvalue, exploration, horizon, rate_start, rate_end, rate_decay, num_episodes, name);
             }
             return algorithm;
         }
@@ -351,65 +351,108 @@ namespace sdm
         {
             // return sdm::formalism::registry::make(formalism, config);
 
-            // Parse the problem
-            auto problem = sdm::parser::parse_file(problem_path);
-
-            problem->setHorizon(horizon);
-            problem->setDiscount(discount);
-
-
             // Build the transformed problem
             std::shared_ptr<SolvableByHSVI> formalism_problem;
 
-            if ((formalism == "mdp") || (formalism == "MDP"))
+            if (formalism == "mdp")
             {
+
+                // Parse the problem
+                auto problem = sdm::parser::parseMMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 formalism_problem = std::make_shared<SolvableByMDP>(problem);
             }
-            else if ((formalism == "belief-mdp") || (formalism == "BeliefMDP") || (formalism == "bmdp") || (formalism == "bMDP"))
+            else if ((formalism == "belief") || (formalism == "b"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 formalism_problem = std::make_shared<BeliefMDP>(problem, batch_size);
             }
-            else if ((formalism == "occupancy-mdp") || (formalism == "OccupancyMDP") || (formalism == "omdp") || (formalism == "oMDP"))
+            else if ((formalism == "occupancy") || (formalism == "o"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto omdp = std::make_shared<OccupancyMDP>(problem, memory, store_state, store_action, batch_size);
                 omdp->setStateType(state_type);
                 formalism_problem = omdp;
             }
-            else if ((formalism == "extensive-mdp") || (formalism == "Extensive-MDP") || (formalism == "ext-MDP") || (formalism == "ext-mdp"))
+            else if ((formalism == "s") || (formalism == "sequential"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_mmdp = std::make_shared<SerialMMDP>(problem);
                 formalism_problem = std::make_shared<SolvableByMDP>(serial_mmdp);
             }
-            else if ((formalism == "extensive-belief-mdp") || (formalism == "Extensive-BeliefMDP") || (formalism == "ext-bMDP") || (formalism == "ext-bmdp"))
+            else if ((formalism == "sb") || (formalism == "seqbelief"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(serial_mpomdp, batch_size);
             }
-            else if ((formalism == "occupancy-extensive-mdp") || (formalism == "OccupancyExtensiveMDP") || (formalism == "oext-MDP") || (formalism == "oext-mdp"))
+            else if ((formalism == "sos") || (formalism == "seqoccupancyseq"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_omdp = std::make_shared<OccupancySerialMDP>(problem, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);
                 formalism_problem = serial_omdp;
             }
-            else if ((formalism == "extensive-occupancy-mdp") || (formalism == "Extensive-OccupancyMDP") || (formalism == "ext-oMDP") || (formalism == "ext-omdp"))
+            else if ((formalism == "so") || (formalism == "seqoccupancy"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto serial_mpomdp = std::make_shared<SerialMPOMDP>(problem);
                 auto serial_omdp = std::make_shared<SerialOccupancyMDP>(serial_mpomdp, memory, store_state, store_action, batch_size);
                 serial_omdp->setStateType(state_type);
                 formalism_problem = serial_omdp;
             }
-            else if ((formalism == "hierarchical-mdp") || (formalism == "Hierarchical-MDP") || (formalism == "hMDP") || (formalism == "hmdp"))
+            else if ((formalism == "hb") || (formalism == "hierbelief"))
             {
-                auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
-                formalism_problem = std::make_shared<SolvableByMDP>(hierarchical_mpomdp);
-            }
-            else if ((formalism == "hierarchical-belief-mdp") || (formalism == "Hierarchical-BeliefMDP") || (formalism == "hbMDP") || (formalism == "hbmdp"))
-            {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
                 formalism_problem = std::make_shared<BeliefMDP>(hierarchical_mpomdp, batch_size);
             }
-            else if ((formalism == "hierarchical-occupancy-mdp") || (formalism == "Hierarchical-OccupancyMDP") || (formalism == "hoMDP") || (formalism == "homdp"))
+            else if ((formalism == "ho") || (formalism == "hieroccupancy"))
             {
+                // Parse the problem
+                auto problem = sdm::parser::parseMPOMDP(problem_path);
+
+                problem->setHorizon(horizon);
+                problem->setDiscount(discount);
+
                 auto hierarchical_mpomdp = std::make_shared<HierarchicalMPOMDP>(problem);
                 formalism_problem = std::make_shared<HierarchicalOccupancyMDP>(hierarchical_mpomdp, memory, store_state, store_action, batch_size);
             }
@@ -442,19 +485,18 @@ namespace sdm
 
             //  Build the algorithm
             std::shared_ptr<Algorithm> p_algo;
-            if ((algo_name == "hsvi") || (algo_name == "HSVI"))
+            if ((algo_name.find("hsvi") != string::npos) || (algo_name.find("HSVI") != string::npos))
             {
                 p_algo = makeHSVI(formalism, error, trials, store_state, store_action, name, time_max,
                                   value_function_1, value_function_2, init_v1, init_v2, freq_update_v1, freq_update_v2,
                                   type_of_resolution_v1, type_of_resolution_v2, freq_pruning_v1, freq_pruning_v2, type_of_pruning_v1, type_of_pruning_v2);
             }
-            else if ((algo_name == "qlearning") || (algo_name == "QLearning") || (algo_name == "QLEARNING") ||
-                     (algo_name == "sarsa") || (algo_name == "Sarsa") || (algo_name == "SARSA"))
+            else if ((algo_name.find("qlearning") != string::npos) || (algo_name.find("QLearning") != string::npos) ||
+                     (algo_name.find("sarsa") != string::npos) || (algo_name.find("SARSA") != string::npos))
             {
-                // std::shared_ptr<GymInterface> gym = std::dynamic_pointer_cast<GymInterface>(formalism);
                 p_algo = makeRL(formalism, algo_name, value_function_1, init_v1, formalism->getHorizon(), discount, rate_start, rate_end, rate_decay, eps_start, eps_end, eps_decay, 1, trials, name);
             }
-            else if ((algo_name == "a*") || (algo_name == "Alpha*") || (algo_name == "A*"))
+            else if ((algo_name.find("a*") != string::npos) || (algo_name.find("A*") != string::npos))
             {
                 if (isInstanceOf<BeliefMDPInterface>(formalism))
                 {
@@ -466,28 +508,28 @@ namespace sdm
                     throw sdm::exception::Exception("Formalism impossible for A* algorithm, the problem have to inherit from belief MDP");
                 }
             }
-            else if ((algo_name == "backward_induction") || (algo_name == "BackwardInduction"))
+            else if ((algo_name.find("backward_induction") != string::npos) || (algo_name.find("BackwardInduction") != string::npos))
             {
                 p_algo = std::make_shared<BackwardInduction>(formalism);
             }
-            else if ((algo_name == "vi") || (algo_name == "ValueIteration"))
-            {
-                p_algo = makeValueIteration(formalism, value_function_1, init_v1,
-                                            error, store_state, name, time_max,
-                                            type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
-            }
-            else if ((algo_name == "pbvi") || (algo_name == "PBVI"))
+            else if ((algo_name.find("pbvi") != string::npos) || (algo_name.find("PBVI") != string::npos))
             {
                 p_algo = makePBVI(formalism, value_function_1, init_v1,
                                   num_samples, type_sampling, error, store_state, name, time_max,
                                   type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
             }
-            else if ((algo_name == "dfsvi") || (algo_name == "DFSVI") || (algo_name == "DepthFirstSearchVI") || (algo_name == "DepthFirstSearchValueIteration"))
+            else if ((algo_name.find("dfsvi") != string::npos) || (algo_name.find("DFSVI") != string::npos) || (algo_name.find("DepthFirstSearchVI") != string::npos))
             {
                 std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, true, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                 p_algo = std::make_shared<DFSVI>(formalism, value_function, error, time_max, name);
             }
-            else if ((algo_name == "perseus") || (algo_name == "PERSEUS") || (algo_name == "Perseus"))
+            else if ((algo_name.find("vi") != string::npos) || (algo_name.find("ValueIteration") != string::npos))
+            {
+                p_algo = makeValueIteration(formalism, value_function_1, init_v1,
+                                            error, store_state, name, time_max,
+                                            type_of_resolution_v1, freq_pruning_v1, type_of_pruning_v1);
+            }
+            else if ((algo_name.find("perseus") != string::npos) || (algo_name.find("Perseus") != string::npos))
             {
                 std::shared_ptr<sdm::ValueFunction> value_function = makeValueFunction(formalism, value_function_1, init_v1, store_state, true, type_of_resolution_v1, type_of_pruning_v1, freq_pruning_v1);
                 p_algo = std::make_shared<Perseus>(formalism, value_function, error, num_samples, time_max, name);
@@ -510,12 +552,29 @@ namespace sdm
             return p_algo;
         }
 
-        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, std::string formalism_name, number horizon, double discount, double error, int trials, double time_max, std::string name,
+        std::shared_ptr<Algorithm> make(std::string algo_name, std::string problem_path, number horizon, double discount, double error, int trials, double time_max, std::string name,
                                         int memory, StateType state_type, bool store_state, bool store_action, number batch_size, unsigned long long num_samples, std::string type_sampling,
                                         double rate_start, double rate_end, double rate_decay, double eps_start, double eps_end, double eps_decay,
                                         std::string value_function_1, std::string init_v1, number freq_update_v1, std::string type_of_resolution_v1, int freq_pruning_v1, std::string type_of_pruning_v1,
                                         std::string value_function_2, std::string init_v2, number freq_update_v2, std::string type_of_resolution_v2, int freq_pruning_v2, std::string type_of_pruning_v2)
         {
+
+            problem_path = tools::getWorldPath(problem_path);
+
+            std::string formalism_name;
+            for (int i = 0; i < algo_name.size(); i++)
+            {
+                if (algo_name[i] == '-')
+                {
+                    formalism_name = algo_name.substr(0, i);
+                    break;
+                }
+                if (i == (algo_name.size() - 1))
+                {
+                    formalism_name = "mdp";
+                }
+            }
+
             std::string COLOR_BLOCKS = config::SDMS_THEME_1,
                         COLOR_NAME_PARAMS = config::SDMS_THEME_2,
                         COLOR_PARAMS = config::NO_COLOR;
@@ -554,8 +613,6 @@ namespace sdm
             std::cout << COLOR_NAME_PARAMS << "type_of_pruning_v2=" << COLOR_PARAMS << type_of_pruning_v2 << std::endl;
             std::cout << COLOR_BLOCKS << "------------------------------------" << std::endl;
             std::cout << config::NO_COLOR;
-
-            problem_path = tools::getWorldPath(problem_path);
 
             if (algo_name == "BayesianGameSolver")
             {

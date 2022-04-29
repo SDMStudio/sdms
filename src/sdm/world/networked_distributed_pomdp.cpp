@@ -159,7 +159,7 @@ namespace sdm
                 std::cout << "NumActions" << std::endl;
                 // Action Space
                 intermediate.clear();
-                std::vector<std::vector<std::shared_ptr<Item>>> list_items;
+                std::vector<std::vector<std::shared_ptr<Action>>> list_items;
                 index = line.find("=");
                 contenu = line.substr(index + 1);
                 std::stringstream check(contenu);
@@ -182,8 +182,8 @@ namespace sdm
                     }
                 }
                 // this->maxActions = num_max_of_actions;
-                this->action_space_ = std::make_shared<MultiDiscreteSpace>(list_items);
-                assert(std::static_pointer_cast<MultiDiscreteSpace>(this->action_space_)->getNumSpaces() == this->num_agents_);
+                this->action_space_ = std::make_shared<MultiDiscreteActionSpace>(list_items);
+                assert(std::static_pointer_cast<MultiDiscreteActionSpace>(this->action_space_)->getNumSpaces() == this->num_agents_);
             }
             else if (line.find("NumOfNodes") != std::string::npos)
             {
@@ -208,12 +208,12 @@ namespace sdm
                 // State Space
                 index = line.find("=");
                 number num_states = std::stoi(line.substr(index + 1));
-                std::vector<std::shared_ptr<Item>> list_states;
+                std::vector<std::shared_ptr<State>> list_states;
                 for (number i = 0; i < num_states; i++)
                 {
                     list_states.push_back(std::make_shared<DiscreteState>(i));
                 }
-                this->state_space_ = std::make_shared<DiscreteSpace>(list_states);
+                this->state_space_ = std::make_shared<DiscreteStateSpace>(list_states);
             }
             else if (line.find("NumOfObservations") != std::string::npos)
             {
@@ -221,13 +221,13 @@ namespace sdm
                 // Observation Space
                 index = line.find("=");
                 number num_observations = std::stoi(line.substr(index + 1));
-                std::vector<std::shared_ptr<Item>> list_obs;
+                std::vector<std::shared_ptr<Observation>> list_obs;
                 for (number i = 0; i < num_observations; i++)
                 {
                     list_obs.push_back(std::make_shared<DiscreteObservation>(i));
                 }
-                std::vector<std::vector<std::shared_ptr<Item>>> all_list_obs(this->getNumAgents(), list_obs);
-                this->observation_space_ = std::make_shared<MultiDiscreteSpace>(all_list_obs);
+                std::vector<std::vector<std::shared_ptr<Observation>>> all_list_obs(this->getNumAgents(), list_obs);
+                this->observation_space_ = std::make_shared<MultiDiscreteObservationSpace>(all_list_obs);
             }
             else if (line.find("Network") != std::string::npos)
             {
@@ -264,10 +264,13 @@ namespace sdm
                 std::cout << "Belief" << std::endl;
                 auto start_distribution_tmp = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
                 intermediate.clear();
-                for (const auto &state : *this->state_space_)
+
+                auto state_end_iter = this->state_space_->end();
+                for (auto state_iter = this->state_space_->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
                 {
+                    auto state = state_iter->getCurrent();
                     std::getline(input_file, line);
-                    start_distribution_tmp->setProbability(state->toState(), std::stod(line));
+                    start_distribution_tmp->setProbability(state, std::stod(line));
                 }
                 this->start_distribution_ = start_distribution_tmp;
             }
@@ -307,28 +310,34 @@ namespace sdm
                     this->n[agent_id].rewardFunction[x + ":" + u] = val;
                     std::getline(input_file, line);
                 }
-                    std::cout << "End Reward"<<std::endl;
+                std::cout << "End Reward" << std::endl;
 
                 auto reward_fct = std::make_shared<CooperativeRewardModel>();
-                for (const auto &state : *this->getStateSpace())
+
+                auto state_end_iter = this->state_space_->end();
+                for (auto state_iter = this->state_space_->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
                 {
+                    auto state = state_iter->getCurrent();
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(state);
-                    for (const auto &joint_action : *this->getActionSpace())
+                    auto begin_iter = this->getActionSpace()->begin();
+                    auto end_iter = this->getActionSpace()->end();
+                    for (auto iter = begin_iter; !iter->equal(end_iter); iter->next())
                     {
+                        auto joint_action = std::static_pointer_cast<JointAction>(iter->getCurrent());
                         double joint_reward = 0.0;
                         for (number agent_id1 = 0; agent_id1 < this->getNumAgents(); agent_id1++)
                         {
-                            auto action_ag1 = std::static_pointer_cast<JointAction>(joint_action->toAction())->get(agent_id1);
+                            auto action_ag1 = joint_action->get(agent_id1);
                             number idx_action_ag1 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id1)->toDiscreteSpace()->getItemIndex(action_ag1);
                             for (number agent_id2 = 0; agent_id2 < this->getNumAgents(); agent_id2++)
                             {
-                                auto action_ag2 = std::static_pointer_cast<JointAction>(joint_action->toAction())->get(agent_id2);
+                                auto action_ag2 = joint_action->get(agent_id2);
                                 number idx_action_ag2 = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id2)->toDiscreteSpace()->getItemIndex(action_ag2);
 
                                 joint_reward += this->getRewardF(idx_state, agent_id1, agent_id2, idx_action_ag1, idx_action_ag2);
                             }
                         }
-                        reward_fct->setReward(state->toState(), joint_action->toAction(), 0, joint_reward);
+                        reward_fct->setReward(state, joint_action, 0, joint_reward);
                     }
                 }
                 this->reward_space_ = reward_fct;
@@ -361,9 +370,12 @@ namespace sdm
                     {
                         auto state_idx = this->getStateSpace()->toDiscreteSpace()->getItem(std::stoi(key1));
                         auto next_state_idx = this->getStateSpace()->toDiscreteSpace()->getItem(std::stoi(key2));
-                        for (const auto &action : *this->getActionSpace())
+
+                        auto end_iter = this->getActionSpace()->end();
+                        for (auto iter = this->getActionSpace()->begin(); !iter->equal(end_iter); iter->next())
                         {
-                            state_dynamics_tmp->setTransitionProbability(state_idx->toState(), action->toAction(), next_state_idx->toState(), prob);
+                            auto action = iter->getCurrent();
+                            state_dynamics_tmp->setTransitionProbability(state_idx, action, next_state_idx, prob);
                         }
                     }
                     std::getline(input_file, line);
@@ -407,20 +419,23 @@ namespace sdm
 
                 // Init ObservationDynamics
                 double proba /* , dynamics_proba */;
-                for (const auto &next_state : *this->getStateSpace())
+                for (auto x_iter = this->getStateSpace()->begin(); !x_iter->equal(this->getStateSpace()->end()); x_iter->next())
                 {
+                    auto next_state = x_iter->getCurrent();
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(next_state);
-                    for (const auto &joint_action : *this->getActionSpace())
+                    for (auto u_iter = this->getActionSpace()->begin(); !u_iter->equal(this->getActionSpace()->end()); u_iter->next())
                     {
-                        for (const auto &joint_obs : *this->getObservationSpace())
+                        auto joint_action = std::static_pointer_cast<JointAction>(u_iter->getCurrent());
+                        for (auto z_iter = this->getObservationSpace()->begin(); !z_iter->equal(this->getObservationSpace()->end()); z_iter->next())
                         {
+                            auto joint_obs = std::static_pointer_cast<JointObservation>(z_iter->getCurrent());
                             proba = 1.;
                             for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
                             {
-                                auto iobservation = std::static_pointer_cast<JointObservation>(joint_obs)->get(agent_id);
+                                auto iobservation = joint_obs->get(agent_id);
                                 number idx_obs_ag = this->getObservationSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iobservation);
 
-                                auto iaction = std::static_pointer_cast<JointAction>(joint_action)->get(agent_id);
+                                auto iaction = joint_action->get(agent_id);
                                 number idx_action_ag = this->getActionSpace()->toMultiDiscreteSpace()->get(agent_id)->toDiscreteSpace()->getItemIndex(iaction);
 
                                 // Compute probability
@@ -428,7 +443,7 @@ namespace sdm
                             }
                             if (proba > 0.00001)
                             {
-                                observation_dynamics_tmp->setObservationProbability(nullptr, joint_action->toAction(), next_state->toState(), joint_obs->toObservation(), proba);
+                                observation_dynamics_tmp->setObservationProbability(nullptr, joint_action, next_state, joint_obs, proba);
                             }
                         }
                     }
@@ -544,7 +559,6 @@ namespace sdm
         return this->n[id].observationFunction[std::to_string(y) + ":" + std::to_string(u) + ":" + std::to_string(z)];
     }
 
-
     // std::set<std::shared_ptr<Observation>> NetworkedDistributedPOMDP::getReachableObservations(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, const std::shared_ptr<State> &next_state, number t) const
     // {
     //     // return this->observation_dynamics_->getReachableObservations(state, action, next_state, t);
@@ -552,9 +566,9 @@ namespace sdm
     //     std::set<std::shared_ptr<Observation>> set_reachable;
     //     for (const auto &obs : *this->getObservationSpace())
     //     {
-    //         if (getObservationProbability(state, action, next_state, obs->toObservation(), t) > 0)
+    //         if (getObservationProbability(state, action, next_state, obs, t) > 0)
     //         {
-    //             set_reachable.insert(obs->toObservation());
+    //             set_reachable.insert(obs);
     //         }
     //     }
     //     return set_reachable;
@@ -589,15 +603,14 @@ namespace sdm
     //     for (auto obs_n : *obs_space)
     //     {
 
-    //         cumul += this->getObservationProbability(state, action, this->getInternalState(), obs_n->toObservation(), t);
+    //         cumul += this->getObservationProbability(state, action, this->getInternalState(), obs_n, t);
     //         if (epsilon < cumul)
     //         {
-    //             return obs_n->toObservation();
+    //             return obs_n;
     //         }
     //     }
     //     return nullptr;
     // }
-
 
     // double NetworkedDistributedPOMDP::getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
     // {
@@ -627,6 +640,5 @@ namespace sdm
     // {
     //     return std::numeric_limits<double>::infinity();
     // }
-
 
 } // namespace sdm

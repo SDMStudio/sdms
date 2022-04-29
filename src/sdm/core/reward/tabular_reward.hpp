@@ -80,38 +80,4 @@ namespace sdm
         std::vector<double> max, min;
     };
 
-    // /**
-    //  * @brief This class provides getter and setter methods for the reward model.
-    //  */
-    // class TemporalTabularReward : public RewardModel,
-    //                               public TemporalFunction<std::shared_ptr<TabularReward>>
-    // {
-    // public:
-    //     using value_type = double;
-    //     using vector_type = MappedVector<std::shared_ptr<State>, value_type>;
-
-    //     TemporalTabularReward();
-    //     TemporalTabularReward(const TemporalTabularReward &copy);
-
-    //     void initReward(number, number);
-
-    //     double getReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) const
-    //     {
-    //         return this->getFunction(t)->getReward(state, action);
-    //     }
-
-    //     void setReward(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &acction, double reward, number t)
-    //     {
-    //         this->getFunction(t)->setReward(state, action, reward);
-    //     }
-
-    //     double getMaxReward(number t) const
-    //     {
-    //         return this->getFunction(t)->getMaxReward();
-    //     }
-    //     double getMinReward(number t) const
-    //     {
-    //         return this->getFunction(t)->getMinReward();
-    //     }
-    // };
 }

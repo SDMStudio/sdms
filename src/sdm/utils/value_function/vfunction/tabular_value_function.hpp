@@ -5,6 +5,7 @@
 #include <sdm/utils/linear_algebra/mapped_vector.hpp>
 #include <sdm/utils/value_function/value_function.hpp>
 #include <sdm/utils/value_function/vfunction/tabular_vf_interface.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 /**
  * @brief Namespace grouping all tools required for sequential decision making.
@@ -13,15 +14,15 @@
 namespace sdm
 {
     /**
-     * @brief Tabular value functions are state value functions represented by a vector. 
-     * 
-     * The size of the vector depends on the number of existing states. 
-     * 
+     * @brief Tabular value functions are state value functions represented by a vector.
+     *
+     * The size of the vector depends on the number of existing states.
+     *
      * @tparam Hash the type of hash function
      * @tparam KeyEqual the type of equal function
      */
     template <class Hash = std::hash<std::shared_ptr<State>>, class KeyEqual = std::equal_to<std::shared_ptr<State>>>
-    class BaseTabularValueFunction : public ValueFunction, public TabularValueFunctionInterface
+    class BaseTabularValueFunction : public ValueFunction, public TabularValueFunctionInterface, public BoostSerializable<BaseTabularValueFunction<Hash, KeyEqual>>
     {
     public:
         using Container = MappedVector<std::shared_ptr<State>, double, Hash, KeyEqual>;
@@ -86,7 +87,7 @@ namespace sdm
 
         /**
          * @brief Load a value function from a file.
-         * 
+         *
          * The extension of the file will indicate the type of formatage for reading
          * (`.txt` = text format, '.xml' = XML format, other = binary format).
          *
@@ -96,7 +97,7 @@ namespace sdm
 
         /**
          * @brief Copy the value function and return a reference to the copied object.
-         * 
+         *
          * @return the address of the value function copied
          */
         std::shared_ptr<ValueFunctionInterface> copy();
@@ -112,8 +113,8 @@ namespace sdm
         std::vector<std::shared_ptr<State>> getSupport(number t);
 
         /**
-         * @brief Get the representation structure of the value function. 
-         * 
+         * @brief Get the representation structure of the value function.
+         *
          * @param t the time step
          * @return the container
          */
@@ -123,7 +124,6 @@ namespace sdm
          * @brief Get the size of the value function at timestep t
          */
         size_t getSize(number t) const;
-        
 
         friend std::ostream &operator<<(std::ostream &os, BaseTabularValueFunction &vf)
         {
@@ -148,17 +148,18 @@ namespace sdm
         template <class Archive>
         void serialize(Archive &archive, const unsigned int &)
         {
-
             using boost::serialization::make_nvp;
-
             archive &make_nvp("horizon", this->horizon_);
-            archive &make_nvp("representation", representation);
+            for (int i = 0; i < this->representation.size(); i++)
+            {
+                archive &representation[i];
+            }
         }
     };
 
     /** @brief Tabular value function using address comparison */
     using TabularValueFunction = BaseTabularValueFunction<std::hash<std::shared_ptr<State>>, std::equal_to<std::shared_ptr<State>>>;
-    
+
     /** @brief Point set value function using state content comparison */
     using TabularValueFunction2 = BaseTabularValueFunction<sdm::hash_from_ptr<State>, sdm::equal_from_ptr<State>>;
 

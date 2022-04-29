@@ -17,15 +17,17 @@ namespace sdm
         auto initial_state = std::make_shared<TBelief>();
 
         // For each state at t=0:
-        for (const auto &state : *pomdp->getStateSpace(0))
+        auto state_end_iter = pomdp->getStateSpace(0)->end();
+        for (auto state_iter = pomdp->getStateSpace(0)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
         {
+            auto state = state_iter->getCurrent();
             // Get the state's probability
-            double probability = pomdp->getStartDistribution()->getProbability(state->toState(), nullptr);
+            double probability = pomdp->getStartDistribution()->getProbability(state, nullptr);
             // If the state is possible:
             if (probability > 0)
             {
                 // Set the probability
-                initial_state->setProbability(state->toState(), probability);
+                initial_state->setProbability(state, probability);
             }
         }
 
@@ -59,13 +61,13 @@ namespace sdm
     }
 
     template <class TBelief>
-    std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
+    std::shared_ptr<ObservationSpace> BaseBeliefMDP<TBelief>::getObservationSpaceAt(const std::shared_ptr<State> &, const std::shared_ptr<Action> &, number t)
     {
         return this->pomdp->getObservationSpace(t);
     }
 
     template <class TBelief>
-    std::shared_ptr<Space> BaseBeliefMDP<TBelief>::getActionSpaceAt(const std::shared_ptr<State> &, number t)
+    std::shared_ptr<ActionSpace> BaseBeliefMDP<TBelief>::getActionSpaceAt(const std::shared_ptr<State> &, number t)
     {
         return this->mdp->getActionSpace(t);
     }
@@ -250,11 +252,13 @@ namespace sdm
     {
         double exp_next_v = 0.0;
         // For all observations from the controller point of view
-        auto accessible_observation_space = this->getObservationSpaceAt(belief, action, t);
-        for (const auto &observation : *accessible_observation_space)
+        auto obs_space = this->getObservationSpaceAt(belief, action, t);
+        auto obs_end_iter = obs_space->end();
+        for (auto obs_iter = obs_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto observation = obs_iter->getCurrent();
             // Compute next state
-            auto [next_state, state_transition_proba] = this->getNextState(belief, action, observation->toObservation(), t);
+            auto [next_state, state_transition_proba] = this->getNextState(belief, action, observation, t);
 
             // Update the next expected value at the next state
             exp_next_v += state_transition_proba * value_function->getValueAt(next_state, t + 1);
@@ -286,12 +290,14 @@ namespace sdm
         // Get a random number between 0 and 1
         double epsilon = std::rand() / (double(RAND_MAX));
 
-
         // Go over all observations of the lower-level agent
         auto accessible_observation_space = this->getObservationSpaceAt(this->current_state_, action, this->step_);
-        for (auto observation : *accessible_observation_space)
+        auto obs_end_iter = accessible_observation_space->end();
+        for (auto obs_iter = accessible_observation_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
-            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, observation->toObservation(), this->step_);
+            auto observation = obs_iter->getCurrent();
+
+            std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, observation, this->step_);
 
             cumul += prob;
             if (epsilon < cumul)
@@ -308,7 +314,7 @@ namespace sdm
     template <class TBelief>
     std::shared_ptr<Action> BaseBeliefMDP<TBelief>::getRandomAction(const std::shared_ptr<State> &, number t)
     {
-        return this->mdp->getActionSpace(t)->sample()->toAction();
+        return this->mdp->getActionSpace(t)->sample();
     }
 
     // ------------------------------------------------------

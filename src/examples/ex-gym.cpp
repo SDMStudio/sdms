@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 
     for (number t = 0; t < 10; t++)
     {
-        auto action = action_space->sample()->toAction();
+        auto action = action_space->sample();
         std::cout << "\t\taction=" << action->str() << std::endl;
         std::tie(next_state, reward, is_done) = env->step(action);
         std::cout << config::LOG_SDMS << "T=" << t+1 << std::endl;

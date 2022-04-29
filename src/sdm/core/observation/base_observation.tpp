@@ -22,6 +22,12 @@ namespace sdm
     }
 
     template <typename TObservation>
+    bool BaseObservation<TObservation>::operator==(const BaseObservation &other)
+    {
+      return this->observation_ == other.observation_;
+    }
+
+    template <typename TObservation>
     std::string BaseObservation<TObservation>::str() const
     {
         std::ostringstream res;

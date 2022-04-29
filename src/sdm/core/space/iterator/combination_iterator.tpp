@@ -1,13 +1,15 @@
-#include <sdm/utils/struct/iterator/combination_iterator.hpp>
+#include <sdm/core/space/iterator/combination_iterator.hpp>
 #include <sdm/exception.hpp>
 
 namespace sdm
 {
     namespace iterator
     {
-        CombinationIterator::CombinationIterator() {}
+        template <typename TItem, typename TBuild>
+        CombinationIterator<TItem, TBuild>::CombinationIterator() {}
 
-        CombinationIterator::CombinationIterator(const std::vector<single_iterator_type> &begin_iterators, const std::vector<single_iterator_type> &end_iterators)
+        template <typename TItem, typename TBuild>
+        CombinationIterator<TItem, TBuild>::CombinationIterator(const std::vector<single_iterator_type> &begin_iterators, const std::vector<single_iterator_type> &end_iterators)
             : begin_iterators_(begin_iterators),
               current_iterators_(begin_iterators),
               end_iterators_(end_iterators)
@@ -15,15 +17,16 @@ namespace sdm
             assert(begin_iterators.size() == end_iterators.size());
         }
 
-        std::shared_ptr<ItemIterator> CombinationIterator::operator++()
+        template <typename TItem, typename TBuild>
+        std::shared_ptr<typename CombinationIterator<TItem, TBuild>::base_iterator_type> CombinationIterator<TItem, TBuild>::operator++()
         {
             // From the last to the first sub iterator
             for (int i = this->begin_iterators_.size() - 1; i >= 0; i--)
             {
-                // Increment i-th sub iterator 
+                // Increment i-th sub iterator
                 this->current_iterators_[i] = this->current_iterators_[i]->operator+(1);
 
-                // Compare incremented i-th iterator to end iterator, 
+                // Compare incremented i-th iterator to end iterator,
                 if (this->current_iterators_.at(i)->operator!=(this->end_iterators_.at(i)))
                 {
                     // If the incremented i-th sub iterator is different to end iterator, stop the for loop and return incremented iterator
@@ -39,7 +42,7 @@ namespace sdm
                     }
                     else
                     {
-                        // If the incremented i-th sub iterator is not first iterator, assign i-th begin iterator to i-th iterator and continue 
+                        // If the incremented i-th sub iterator is not first iterator, assign i-th begin iterator to i-th iterator and continue
                         this->current_iterators_[i] = this->begin_iterators_.at(i);
                     }
                 }
@@ -47,7 +50,8 @@ namespace sdm
             return this->shared_from_this();
         }
 
-        std::shared_ptr<ItemIterator> CombinationIterator::operator+=(number n)
+        template <typename TItem, typename TBuild>
+        std::shared_ptr<typename CombinationIterator<TItem, TBuild>::base_iterator_type> CombinationIterator<TItem, TBuild>::operator+=(number n)
         {
             for (number i = 0; i < n; i++)
             {
@@ -56,15 +60,17 @@ namespace sdm
             return this->shared_from_this();
         }
 
-        std::shared_ptr<ItemIterator> CombinationIterator::operator+(number n) const
+        template <typename TItem, typename TBuild>
+        std::shared_ptr<typename CombinationIterator<TItem, TBuild>::base_iterator_type> CombinationIterator<TItem, TBuild>::operator+(number n) const
         {
             return this->copy()->operator+=(n);
         }
 
-        std::shared_ptr<ItemIterator> CombinationIterator::copy() const
+        template <typename TItem, typename TBuild>
+        std::shared_ptr<typename CombinationIterator<TItem, TBuild>::base_iterator_type> CombinationIterator<TItem, TBuild>::copy() const
         {
-            // Create a copy iterator that keep same pointer on begin and end iterators but copy current iterators 
-            auto multi_it = std::make_shared<CombinationIterator>();
+            // Create a copy iterator that keep same pointer on begin and end iterators but copy current iterators
+            auto multi_it = std::make_shared<CombinationIterator<TItem>>();
             multi_it->begin_iterators_ = this->begin_iterators_;
             multi_it->end_iterators_ = this->end_iterators_;
             for (const auto &iter : this->current_iterators_)
@@ -74,17 +80,20 @@ namespace sdm
             return multi_it;
         }
 
-        bool CombinationIterator::operator==(const std::shared_ptr<ItemIterator> &other) const
+        template <typename TItem, typename TBuild>
+        bool CombinationIterator<TItem, TBuild>::operator==(const std::shared_ptr<typename CombinationIterator<TItem, TBuild>::base_iterator_type> &other) const
         {
-            return (this->current_iterators_ == std::static_pointer_cast<CombinationIterator>(other)->current_iterators_);
+            return (this->current_iterators_ == std::static_pointer_cast<CombinationIterator<TItem>>(other)->current_iterators_);
         }
-
-        bool CombinationIterator::operator!=(const std::shared_ptr<ItemIterator> &other) const
+        
+        template <typename TItem, typename TBuild>
+        bool CombinationIterator<TItem, TBuild>::operator!=(const std::shared_ptr<typename CombinationIterator<TItem, TBuild>::base_iterator_type> &other) const
         {
             return (!this->operator==(other));
         }
 
-        std::shared_ptr<Item> &CombinationIterator::operator*()
+        template <typename TItem, typename TBuild>
+        TItem &CombinationIterator<TItem, TBuild>::getCurrent()
         {
             if (this->current_iterators_.empty())
             {
@@ -92,22 +101,16 @@ namespace sdm
             }
             else
             {
-                auto joint_items = std::make_shared<JointItem>();
-                for (const auto &iter : this->current_iterators_)
-                {
-                    joint_items->push_back(iter->operator*());
-                }
-                this->temporary_item = joint_items;
+                std::vector<TItem> list_items;
+                std::transform(current_iterators_.begin(), current_iterators_.end(), std::back_inserter(list_items), [](const single_iterator_type &iter)
+                               { return iter->getCurrent(); });
+                this->temporary_item = std::make_shared<TBuild>(list_items);
             }
             return this->temporary_item;
         }
 
-        std::shared_ptr<Item> *CombinationIterator::operator->()
-        {
-            return &(this->operator*());
-        }
-
-        void CombinationIterator::debug()
+        template <typename TItem, typename TBuild>
+        void CombinationIterator<TItem, TBuild>::debug()
         {
             std::cout << "<current-iteraor>\n";
             for (const auto &iter : this->current_iterators_)

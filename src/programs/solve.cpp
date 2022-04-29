@@ -66,9 +66,9 @@ int solve(int argv, char **args)
 
         po::options_description config("Configuration");
         config.add_options()
-        ("algorithm,a", po::value<string>(&algo_name)->default_value("hsvi"), "the algorithm to use")
+        ("algorithm,a", po::value<string>(&algo_name)->default_value("o-hsvi"), "the algorithm to use")
         ("world,w", po::value<string>(&world)->default_value("mabc.dpomdp"), "the world to be solved")
-        ("formalism,f", po::value<string>(&formalism)->default_value("OccupancyMDP"), "the formalism to use")
+        // ("formalism,f", po::value<string>(&formalism)->default_value("OccupancyMDP"), "the formalism to use")
         ("horizon,h", po::value<number>(&horizon)->default_value(5), "the planning horizon")
         ("discount,d", po::value<double>(&discount)->default_value(1.0), "the discount factor")
         ("memory,m", po::value<int>(&memory)->default_value(-1), "the memory for history")
@@ -115,11 +115,11 @@ int solve(int argv, char **args)
         qlearning_config.add_options()
         ("qvalue_function", po::value<string>(&lower_bound), "the q-value function representation")
         ("eps_start", po::value<double>(&eps_start)->default_value(1.0), "the starting epsilon")
-        ("eps_end", po::value<double>(&eps_end)->default_value(0.001), "the final epsilon")
-        ("eps_decay", po::value<double>(&eps_decay)->default_value(-1), "the decaying epsilon factor (default to linear)")
+        ("eps_end", po::value<double>(&eps_end)->default_value(0.1), "the final epsilon")
+        ("eps_decay", po::value<double>(&eps_decay)->default_value(30000), "the decaying epsilon factor (default to linear)")
         ("rate_start", po::value<double>(&rate_start)->default_value(1.0), "the starting learning rate")
-        ("rate_end", po::value<double>(&rate_end)->default_value(0.001), "the final learning rate")
-        ("rate_decay", po::value<double>(&rate_decay)->default_value(10000), "the decaying factor")
+        ("rate_end", po::value<double>(&rate_end)->default_value(0.1), "the final learning rate")
+        ("rate_decay", po::value<double>(&rate_decay)->default_value(30000), "the decaying factor")
         ("rate_decay_start_time", po::value<double>(&QLearning::RATE_DECAY_START_TIME)->default_value(43200), "the decaying factor")
         ("rate_decay_duration", po::value<double>(&QLearning::DURATION_RATE_DECAY)->default_value(43200), "the decaying factor")
         ("q_init", po::value<string>(&lb_init), "the q-value function initialization method")
@@ -175,7 +175,6 @@ int solve(int argv, char **args)
         // Build algorithm
         algorithm = sdm::algo::make(algo_name,
                                     world,
-                                    formalism,
                                     horizon,
                                     discount,
                                     error,

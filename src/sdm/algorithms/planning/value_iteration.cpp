@@ -71,10 +71,12 @@ namespace sdm
     {
         // Select next states
         auto state_space = this->selectStates(t);
-        for (const auto &state : *state_space)
+        auto s_end_iter = state_space->end();
+        for (auto s_iter = state_space->begin(); !s_iter->equal(s_end_iter); s_iter = s_iter->next())
         {
+            auto state = s_iter->getCurrent();
             // Update the value function (backward update)
-            this->updateValue(state->toState(), t);
+            this->updateValue(state, t);
         }
     }
 
@@ -82,7 +84,7 @@ namespace sdm
     {
         try
         {
-            if (getWorld()->getHorizon() == 0)
+            if (getWorld()->isInfiniteHorizon())
             {
                 this->doOneStepTrial(0);
             }
@@ -114,7 +116,7 @@ namespace sdm
         max_error = std::max(max_error, std::abs(getValueFunction()->getValueAt(state, t) - getTmpValueFunction()->getValueAt(state, t)));
     }
 
-    std::shared_ptr<Space> ValueIteration::selectStates(number t)
+    std::shared_ptr<StateSpace> ValueIteration::selectStates(number t)
     {
         return getWorld()->getUnderlyingProblem()->getStateSpace(t);
     }

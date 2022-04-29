@@ -22,7 +22,7 @@ namespace sdm
      * @tparam TState The state type
      * @tparam TAction The action type
      */
-    class SolvableByDP : public std::enable_shared_from_this<SolvableByDP>
+    class SolvableByDP : public GymInterface, public std::enable_shared_from_this<SolvableByDP>
     {
     public:
         virtual ~SolvableByDP() {}
@@ -63,7 +63,7 @@ namespace sdm
          * @param t the time step
          * @return the action space 
          */
-        virtual std::shared_ptr<Space> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
+        virtual std::shared_ptr<ActionSpace> getActionSpaceAt(const std::shared_ptr<State> &state, number t) = 0;
 
         /**
          * @brief Get the observation space at a specific state, action and time step.
@@ -73,7 +73,7 @@ namespace sdm
          * @param t the time step
          * @return the observation space
          */
-        virtual std::shared_ptr<Space> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
+        virtual std::shared_ptr<ObservationSpace> getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t) = 0;
 
         /**
          * @brief Get the distribution over next states

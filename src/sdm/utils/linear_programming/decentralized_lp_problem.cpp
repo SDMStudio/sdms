@@ -11,7 +11,7 @@ namespace sdm
 
     void DecentralizedLP::createVariables(const std::shared_ptr<ValueFunctionInterface> &vf, const std::shared_ptr<State> &state, IloEnv &env, IloNumVarArray &var, number &index, number t)
     {
-        //Create Joint Decentralized Variable
+        // Create Joint Decentralized Variable
         auto occupancy_state = state->toOccupancyState();
 
         //<! tracking variables
@@ -20,10 +20,13 @@ namespace sdm
         //<! 0.a Build variables a(u|o)
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
-            for (const auto &action : *getWorld()->getUnderlyingProblem()->getActionSpace(t))
+
+            auto action_end_iter = getWorld()->getUnderlyingProblem()->getActionSpace(t)->end();
+            for (auto action_iter = getWorld()->getUnderlyingProblem()->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
+                auto action = action_iter->getCurrent();
                 //< 0.b Build variables a(u|o)
-                VarName = this->getVarNameJointHistoryDecisionRule(action->toAction(), joint_history);
+                VarName = this->getVarNameJointHistoryDecisionRule(action, joint_history);
                 var.add(IloBoolVar(env, 0.0, 1.0, VarName.c_str()));
                 this->setNumber(VarName, index++);
             }
@@ -31,7 +34,7 @@ namespace sdm
 
         for (auto agent = 0; agent < getWorld()->getUnderlyingProblem()->getNumAgents(); ++agent)
         {
-            //Create Individual Decentralized Variable
+            // Create Individual Decentralized Variable
             IndividualLP::createVariables(vf, state, env, var, index, t, agent);
         }
     }
@@ -40,7 +43,7 @@ namespace sdm
     {
         auto underlying_problem = getWorld()->getUnderlyingProblem();
 
-        //Create Joint Decentralized Constraints and Control Constraints
+        // Create Joint Decentralized Constraints and Control Constraints
         auto occupancy_state = state->toOccupancyState();
 
         number recover;
@@ -49,14 +52,16 @@ namespace sdm
         for (const auto &jhistory : occupancy_state->getJointHistories())
         {
             // Go over all action
-            for (const auto &action : *underlying_problem->getActionSpace(t))
+
+            auto action_end_iter = underlying_problem->getActionSpace(t)->end();
+            for (auto action_iter = underlying_problem->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
-                auto joint_action = std::static_pointer_cast<JointAction>(action->toAction());
+                auto joint_action = std::static_pointer_cast<JointAction>(action_iter->getCurrent());
 
                 //<! 3.a set constraint a(u|o) >= \sum_i a_i(u_i|o_i) + 1 - n
                 con.add(IloRange(env, 1 - underlying_problem->getNumAgents(), +IloInfinity));
                 //<! 3.a.1 get variable a(u|o)
-                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(action->toAction(), jhistory->toJointHistory()));
+                recover = this->getNumber(this->getVarNameJointHistoryDecisionRule(joint_action, jhistory->toJointHistory()));
                 //<! 3.a.2 set coefficient of variable a(u|o)
                 con[index].setLinearCoef(var[recover], +1.0);
 
@@ -78,9 +83,10 @@ namespace sdm
         for (const auto &jhistory : occupancy_state->getJointHistories())
         {
             // Go over all action
-            for (const auto &action : *underlying_problem->getActionSpace(t))
+            auto action_end_iter = underlying_problem->getActionSpace(t)->end();
+            for (auto action_iter = underlying_problem->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
-                auto joint_action = std::static_pointer_cast<JointAction>(action->toAction());
+                auto joint_action = std::static_pointer_cast<JointAction>(action_iter->getCurrent());
 
                 // Go over agent
                 for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
@@ -103,7 +109,7 @@ namespace sdm
 
         for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
         {
-            //Create Individual Decentralized Constraints
+            // Create Individual Decentralized Constraints
             IndividualLP::createConstraints(vf, state, env, model, con, var, index, t, agent);
         }
     }
@@ -112,13 +118,13 @@ namespace sdm
     {
         std::vector<std::shared_ptr<DecisionRule>> actions;
 
-        //Determine the element useful for create a JointDeterminiticDecisionRule
+        // Determine the element useful for create a JointDeterminiticDecisionRule
         for (number agent = 0; agent < this->getWorld()->getUnderlyingProblem()->getNumAgents(); agent++)
         {
             actions.push_back(std::dynamic_pointer_cast<DeterministicDecisionRule>(IndividualLP::getVariableResult(vf, state, cplex, var, t, agent)));
         }
-        
-        //Create the JointDeterminiticDecisionRule
+
+        // Create the JointDeterminiticDecisionRule
         return std::make_shared<JointDeterministicDecisionRule>(actions, this->getWorld()->getUnderlyingProblem()->getActionSpace(t));
     }
 }

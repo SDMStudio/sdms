@@ -1,12 +1,12 @@
 .\" Manpage for SDM'Studio.
 .\" Contact david.albert@insa-lyon.fr to correct errors or typos.
-.TH SDMStudio 1 "16 Mars 2021" "1.0" "SDMStudio Manual"
+.TH sdms 1 "16 Mars 2021" "1.0" "sdms Manual"
 .SH NAME
-SDMStudio \- the sequential decision making problem solver.
+sdms \- the sequential decision making problem solver.
 .SH SYNOPSIS
-SDMStudio [--version] [--help] <command> [<args>]
+sdms [--version] [--help] <command> [<args>]
 .SH DESCRIPTION
-SDMStudio is an efficient solver for games. The solver can be used to solve any kind of sequential decision making problems. Two class of algorithms are available (planning or reinforcement learning).
+sdms is an efficient solver for games. The solver can be used to solve any kind of sequential decision making problems. Two class of algorithms are available (planning or reinforcement learning).
 The first version of SDM'Studio can solve problems like : MDP, POMDP, Dec-POMDP, ZS-POSG, and event more. 
 
 The main two algorithms implemented in the platform are HSVI (for planning field) and Q-learning (for reinforcement learning field). Further informations about the platform can be found on https://gitlab.inria.fr/chroma1/plasma/sdms.
@@ -22,17 +22,17 @@ Produce help message.
 .BR algorithms
 Show available algorithms.
 .TP
-.BR help
-Produce help message.
 .TP
+.BR formalisms
+Show available formalisms.
 .BR solve
 Solve a decision making problem using planning algorithms.
 .TP
-.BR learn
-Solve a decision making problem using learning algorithms.
-.TP
 .BR test
 Test program. This program will test a given policy.
+.TP
+.BR worlds
+Show available worlds.
 .SH SEE ALSO
 sdms-solve(1), sdms-learn(1), sdms-test(1) 
 .SH BUGS

@@ -120,8 +120,6 @@ namespace sdm
          */
 		void updateValue(const std::shared_ptr<State> &state, number t);
 
-		void saveParams(std::string filename, std::string format = ".md");
-
 		void saveResults(std::string filename, std::string format = ".md");
 
 	protected:

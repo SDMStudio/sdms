@@ -29,7 +29,7 @@ namespace sdm
                 std::shared_ptr<MMDPInterface> getUnderlyingSerialMMDP() const;
                 std::shared_ptr<MPOMDPInterface> getUnderlyingSerialMPOMDP() const;
 
-                std::shared_ptr<Space> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
+                std::shared_ptr<ActionSpace> computeActionSpaceAt(const std::shared_ptr<State> &occupancy_state, number t = 0);
                 std::shared_ptr<Action> computeRandomAction(const std::shared_ptr<OccupancyStateInterface> &ostate, number t);
                 double getReward(const std::shared_ptr<State> &occupancy_state, const std::shared_ptr<Action> &decision_rule, number t);
 

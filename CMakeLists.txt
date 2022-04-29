@@ -16,7 +16,7 @@ message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
 
 # --> Install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-    set(CMAKE_INSTALL_PREFIX "/usr")
+    set(CMAKE_INSTALL_PREFIX "/usr/local")
 endif()
 message(STATUS "Install prefix: ${CMAKE_INSTALL_PREFIX}")
 
@@ -48,10 +48,9 @@ project(sdms
 set(PROJECT_DESCRIPTION "Sequential Decision Making Problem Solver.")
 
 # options for compilation
-option(SDMS_SHARED_LIB "If ON, build a shared libraries else build a static one" ON)
 option(SDMS_BUILD_SDMS "Build SDM'Studio" ON)
 option(SDMS_BUILD_DOCS "Build SDMS documentation" OFF)
-option(SDMS_BUILD_TESTS "Build tests for SDMS" OFF)
+option(SDMS_BUILD_TESTS "Build tests for SDMS" ON)
 
 # Path to third party (can be defined if different from default) 
 # --> Pytorch
@@ -109,6 +108,4 @@ endif()
 
 # Configure sdms.pc file and install it
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/sdms.pc.in ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc @ONLY)	
-
-install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc    
-        DESTINATION lib/pkgconfig/)
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/sdms.pc DESTINATION lib/pkgconfig/)

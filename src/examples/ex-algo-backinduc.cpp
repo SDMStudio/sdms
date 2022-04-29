@@ -9,10 +9,10 @@ using namespace sdm;
 int main()
 {
     // Parse the problem file
-    auto pomdp = sdm::parser::parsePOMDP(sdm::config::PROBLEM_PATH + "dpomdp/tiger.dpomdp");
-    pomdp->setHorizon(4);
+    auto mpomdp = sdm::parser::parseMPOMDP("tiger.dpomdp");
+    mpomdp->setHorizon(4);
     // Recast the problem instance into a solvable interface
-    auto belief_mdp = std::make_shared<BeliefMDP>(pomdp);
+    auto belief_mdp = std::make_shared<BeliefMDP>(mpomdp);
     // Instanciate the algorithm
     auto algo = std::make_shared<BackwardInduction>(belief_mdp);
     // Initialize and solve

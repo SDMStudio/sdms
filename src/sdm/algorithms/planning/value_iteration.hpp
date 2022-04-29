@@ -126,7 +126,7 @@ namespace sdm
          * @param h the horizon
          * @return the state spaces
          */
-        virtual std::shared_ptr<Space> selectStates(number h);
+        virtual std::shared_ptr<StateSpace> selectStates(number h);
 
         /**
          * @brief Initialize a trial.

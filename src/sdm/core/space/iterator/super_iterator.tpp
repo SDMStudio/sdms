@@ -1,4 +1,4 @@
-#include <sdm/utils/struct/iterator/super_iterator.hpp>
+#include <sdm/core/space/iterator/super_iterator.hpp>
 
 namespace sdm
 {
@@ -10,7 +10,7 @@ namespace sdm
         {
         }
         template <typename TItem, typename STDIterator>
-        std::shared_ptr<ItemIterator> SuperIterator<TItem, STDIterator>::copy() const
+        std::shared_ptr<Iterator<TItem>> SuperIterator<TItem, STDIterator>::copy() const
         {
             return std::make_shared<SuperIterator>(this->sub_iterator_);
         }
@@ -48,15 +48,11 @@ namespace sdm
         }
 
         template <typename TItem, typename STDIterator>
-        TItem &SuperIterator<TItem, STDIterator>::operator*()
+        TItem &SuperIterator<TItem, STDIterator>::getCurrent()
         {
             return *this->sub_iterator_;
         }
-        template <typename TItem, typename STDIterator>
-        TItem *SuperIterator<TItem, STDIterator>::operator->()
-        {
-            return &(*this->sub_iterator_);
-        }
+
     } // namespace iterator
 
 } // namespace sdm
