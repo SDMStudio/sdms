@@ -24,9 +24,9 @@ int main(int argc, char **argv)
     std::cout << "------ SuperIterator -------" << std::endl;
 
     // Iterate over items and display them
-    for (auto item_iterator = begin_iterator; item_iterator != end_iterator; item_iterator->operator++())
+    for (auto item_iterator = begin_iterator; !item_iterator->equal(end_iterator); item_iterator->next())
     {
-        std::cout << (*item_iterator)->str() << std::endl;
+        std::cout << item_iterator->getCurrent()->str() << std::endl;
     }
 
     // Add the 3 items in a list
@@ -48,8 +48,8 @@ int main(int argc, char **argv)
 
     std::cout << "------ CombinationIterator -------" << std::endl;
     // Iterate over items and display them
-    for (auto item_iterator = begin_combination_iterator; item_iterator != end_combination_iterator; item_iterator->operator++())
+    for (auto item_iterator = begin_combination_iterator; !item_iterator->equal(end_combination_iterator); item_iterator->next())
     {
-        std::cout << (*item_iterator)->str() << std::endl;
+        std::cout << item_iterator->getCurrent()->str() << std::endl;
     }
 }
