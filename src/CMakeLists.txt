@@ -136,22 +136,22 @@ target_link_libraries(sdm_value_function_static -L${SDMS_LIB_DIR} ${TORCH_LIBRAR
 
 # shared and static libraries built from the same object files
 add_library(sdm_planning SHARED $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>  $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(sdm_planning dl -L /usr/local/lib -L${SDMS_LIB_DIR} ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_planning dl -L/usr/local/lib -L${SDMS_LIB_DIR} ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 add_library(sdm_planning_static STATIC $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:planning_obj>)
-target_link_libraries(sdm_planning_static -L /usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_planning_static -L/usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 # shared and static libraries built from the same object files
 add_library(sdm_rl SHARED $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>  $<TARGET_OBJECTS:world_obj>  $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(sdm_rl -L /usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_rl -L/usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 add_library(sdm_rl_static STATIC $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:value_function_obj>  $<TARGET_OBJECTS:world_obj>  $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(sdm_rl_static -L /usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(sdm_rl_static -L/usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 # shared and static libraries built from the same object files
 add_library(${LIB_SDMS} SHARED $<TARGET_OBJECTS:sdm_obj> $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:planning_obj> $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(${LIB_SDMS} -L /usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(${LIB_SDMS} -L/usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 add_library(${LIB_SDMS_STATIC} STATIC $<TARGET_OBJECTS:sdm_obj> $<TARGET_OBJECTS:core_obj> $<TARGET_OBJECTS:world_obj> $<TARGET_OBJECTS:value_function_obj> $<TARGET_OBJECTS:planning_obj> $<TARGET_OBJECTS:rl_obj>)
-target_link_libraries(${LIB_SDMS_STATIC} -L /usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
+target_link_libraries(${LIB_SDMS_STATIC} -L/usr/local/lib -L${SDMS_LIB_DIR} dl ${TORCH_LIBRARIES} ${Boost_LIBRARIES} ${TB2_LIBRARIES} ${CPLEX_LIBRARIES} fmt)
 
 
 # shared libraries need PIC
