@@ -10,7 +10,7 @@ error = 0.0001
 name = "TabularValueFunction"
 initializer = "Min"
 action_selection = "Exhaustive"
-update_operator = "TabularUpdate"
+update_rule = "TabularUpdate"
 freq_pruning = 10
 pruning_type = "pairwise"
 
@@ -19,7 +19,7 @@ pruning_type = "pairwise"
 name = "TabularValueFunction"
 initializer = "Max"
 action_selection = "Exhaustive"
-update_operator = "TabularUpdate"
+update_rule = "TabularUpdate"
 freq_pruning = 10
 pruning_type = "pairwise"
 

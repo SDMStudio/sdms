@@ -2,7 +2,7 @@
 name = "SawtoothValueFunction"
 
 action_selection = "SawtoothLP"
-update_operator = "TabularUpdate"
+update_rule = "TabularUpdate"
 freq_pruning = 10
 pruning_type = "pairwise"
 

@@ -2,5 +2,5 @@
 name = "TabularValueFunction"
 
 action_selection = "Exhaustive"
-update_operator = "TabularUpdate"
+update_rule = "TabularUpdate"
 initializer = "Zero"
