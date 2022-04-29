@@ -36,9 +36,10 @@ int main(int argc, char **argv)
 
         std::cout << *value << std::endl;
 
-        for (auto state : *hsvi_mdp->getUnderlyingProblem()->getStateSpace(0))
+        auto state_space = hsvi_mdp->getUnderlyingProblem()->getStateSpace(0);
+        for (auto state_iter = state_space->begin(); !state_iter->equal(state_space->end()); state_iter->next())
         {
-            value->setValueAt(state, 10., 0);
+            value->setValueAt(state_iter->getCurrent(), 10., 0);
         }
         std::cout << *value << std::endl;
 
