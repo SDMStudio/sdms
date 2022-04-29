@@ -21,7 +21,6 @@
 #include <sdm/core/distribution.hpp>
 #include <sdm/world/base/mmdp_interface.hpp>
 
-#include <sdm/core/space/multi_space.hpp>
 #include <sdm/core/space/discrete_space.hpp>
 
 #include <unordered_map>
