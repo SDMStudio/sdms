@@ -20,15 +20,6 @@ int main(int argc, char **argv)
     auto state_sp = std::make_shared<DiscreteStateSpace>(states);
     auto action_sp = std::make_shared<MultiDiscreteActionSpace>(actions, false);
 
-    // for (const auto &state : *state_sp)
-    // {
-    //     std::cout << "s=" << *state << std::endl;
-    // }
-
-    // for (const auto &action : *action_sp)
-    // {
-    //     std::cout << "a=" << *action << std::endl;
-    // }
 
     auto end_iter = action_sp->end();
     for (auto iter = action_sp->begin(); !iter->equal(end_iter); iter = iter->next())

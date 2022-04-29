@@ -114,8 +114,11 @@ namespace sdm
         double exp_next_v = 0.0;
         // For all observations from the controller point of view
         auto accessible_observation_space = this->getPOMDPValueFunction()->getWorld()->getObservationSpaceAt(belief, action, t);
-        for (const auto &observation : *accessible_observation_space)
+
+        auto obs_end_iter = accessible_observation_space->end();
+        for (auto obs_iter = accessible_observation_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto observation = obs_iter->getCurrent();
             // Compute next state
             auto [next_state, state_transition_proba] = this->getPOMDPValueFunction()->getWorld()->getNextStateAndProba(belief, action, observation, t);
 

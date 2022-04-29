@@ -182,8 +182,10 @@ namespace sdm
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (auto joint_observation : *pomdp->getObservationSpace(t))
+                auto obs_end_iter = pomdp->getObservationSpace(t)->end();
+                for (auto obs_iter = pomdp->getObservationSpace(t)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
                 {
+                    auto joint_observation = obs_iter->getCurrent();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
                         // Get the next belief and p(z_{t+1} | b_t, u_t)
@@ -202,7 +204,6 @@ namespace sdm
                 }
             }
         }
-
 
         return this->finalizeNextState(next_one_step_left_compressed_occupancy_state, t);
     }
@@ -889,8 +890,10 @@ namespace sdm
                 double proba_action = 1; // decision_rule->getProbability(compressed_joint_history, joint_action);
 
                 // For each observation in the space of joint observation
-                for (auto joint_observation : *pomdp->getObservationSpace(t))
+                auto obs_end_iter = pomdp->getObservationSpace(t)->end();
+                for (auto obs_iter = pomdp->getObservationSpace(t)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
                 {
+                    auto joint_observation = obs_iter->getCurrent();
                     if (this->checkCompatibility(joint_observation, observation))
                     {
                         // Get the next belief and p(z_{t+1} | b_t, u_t)

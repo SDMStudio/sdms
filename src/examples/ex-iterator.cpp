@@ -43,8 +43,8 @@ int main(int argc, char **argv)
     // Instanciate a combination iterator that will iterate over all combination of the two lists
     std::vector<std::shared_ptr<ItemIterator>> begins{begin_iterator, begin_iterator}, ends{end_iterator, end_iterator};
 
-    std::shared_ptr<ItemIterator> begin_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator>(begins, ends);
-    std::shared_ptr<ItemIterator> end_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator>();
+    std::shared_ptr<ItemIterator> begin_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator<std::shared_ptr<Item>>>(begins, ends);
+    std::shared_ptr<ItemIterator> end_combination_iterator = std::make_shared<sdm::iterator::CombinationIterator<std::shared_ptr<Item>>>();
 
     std::cout << "------ CombinationIterator -------" << std::endl;
     // Iterate over items and display them

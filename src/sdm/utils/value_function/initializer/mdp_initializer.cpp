@@ -85,9 +85,10 @@ namespace sdm
             // Solve MDP with HSVI instanciation
             algorithm->initialize();
 
-            for (const auto &element : *mdp->getStateSpace(0))
+            auto state_end_iter = mdp->getStateSpace(0)->end();
+            for (auto state_iter = mdp->getStateSpace(0)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                auto state = element;
+                auto state = state_iter->getCurrent();
                 hsvi_mdp->setInitialState(state);
                 algorithm->solve();
             }

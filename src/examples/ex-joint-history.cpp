@@ -30,8 +30,10 @@ int main(int argc, char **argv)
 
     std::shared_ptr<JointHistoryInterface> joint_history = jhistory;
     // List of joint observation for the example
-    for (const auto &joint_obs : *mpomdp->getObservationSpace(0))
+    auto end_iter = mpomdp->getObservationSpace(0)->end();
+    for (auto iter = mpomdp->getObservationSpace(0)->begin(); !iter->equal(end_iter); iter = iter->next())
     {
+        auto joint_obs = iter->getCurrent();
         std::cout << "\n#> Expand with observation " << *joint_obs << std::endl;
         joint_history = joint_history->expand(joint_obs)->toJointHistory();
         std::cout << "#> Expanded joint history --> " << *joint_history << std::endl;

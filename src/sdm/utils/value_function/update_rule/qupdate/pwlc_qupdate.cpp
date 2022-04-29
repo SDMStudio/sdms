@@ -44,8 +44,10 @@ namespace sdm
                     {
                         for (const auto &x_ : pomdp->getReachableStates(x, u, t))
                         {
-                            for (const auto &z : *pomdp->getObservationSpace(t)) // pomdp->getReachableObservations(x, u, x_, t)) // 0.86
+                            auto z_end_iter = pomdp->getObservationSpace(t)->end();
+                            for (auto z_iter = pomdp->getObservationSpace(t)->begin(); !z_iter->equal(z_end_iter); z_iter = z_iter->next())
                             {
+                                auto z = z_iter->getCurrent();
                                 // set next-step history h' = h + u + z
                                 auto o_ = o->expand(std::static_pointer_cast<JointObservation>(z)); // 5.2
                                 auto &&c_o_ = s_->getCompressedJointHistory(o_);                    // 5.8

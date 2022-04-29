@@ -39,10 +39,14 @@ namespace sdm
 
             // Compute \alpha_ao (\beta_ao in the paper of Trey Smith)
             RecursiveMap<std::shared_ptr<Action>, std::shared_ptr<Observation>, std::shared_ptr<AlphaVector>> alpha_ao;
-            for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
+            auto action_end_iter = getWorld()->getActionSpaceAt(belief_state, t)->end();
+            for (auto action_iter = getWorld()->getActionSpaceAt(belief_state, t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
-                for (const auto &observation : *getWorld()->getObservationSpaceAt(belief_state, action, t))
+                auto action = action_iter->getCurrent();
+                auto obs_end_iter = getWorld()->getObservationSpaceAt(belief_state, action, t)->end();
+                for (auto obs_iter = getWorld()->getObservationSpaceAt(belief_state, action, t)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
                 {
+                    auto observation = obs_iter->getCurrent();
                     auto next_belief_state = getWorld()->getNextStateAndProba(belief_state, action, observation, t).first;
                     alpha_ao[action][observation] = std::static_pointer_cast<AlphaVector>(this->getValueFunction()->getHyperplaneAt(next_belief_state, t + 1));
                 }
@@ -55,8 +59,9 @@ namespace sdm
             // TODO Ideallement tu n'as pas besoin de cette boucle car l'action gourmande est connue d'apres la ligne 21.
             // TODO Ideallement tu devrais ajouter en argument cette action et enlever cette boucle inutile.
             // TODO S'il y'a un probleme c'est qu'il vient d'ailleurs et pas de cette fonction.
-            for (const auto &action : *getWorld()->getActionSpaceAt(belief_state, t))
+            for (auto action_iter = getWorld()->getActionSpaceAt(belief_state, t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
+                auto action = action_iter->getCurrent();
                 // Creation of a new belief
                 std::shared_ptr<AlphaVector> alpha_a = std::make_shared<bAlpha>(this->getValueFunction()->getDefaultValue(t));
 
@@ -122,6 +127,5 @@ namespace sdm
             }
             return new_hyperplane;
         }
-
     }
 }

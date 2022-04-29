@@ -8,8 +8,8 @@
         using value_type = std::shared_ptr<CLASS>;                                                                                                     \
                                                                                                                                                        \
         Joint() {}                                                                                                                                     \
-        Joint(std::size_t size) : std::vector<std::shared_ptr<CLASS>>(size) {}                                                                                              \
-        Joint(std::size_t size, std::shared_ptr<CLASS> default_value) : std::vector<std::shared_ptr<CLASS>>(size, default_value) {}                                                              \
+        Joint(std::size_t size) : std::vector<std::shared_ptr<CLASS>>(size) {}                                                                         \
+        Joint(std::size_t size, std::shared_ptr<CLASS> default_value) : std::vector<std::shared_ptr<CLASS>>(size, default_value) {}                    \
         Joint(const std::vector<std::shared_ptr<CLASS>> &joint_item) : std::vector<std::shared_ptr<CLASS>>(joint_item) {}                              \
         Joint(const std::vector<number> &, const std::vector<std::shared_ptr<CLASS>> &joint_item) : std::vector<std::shared_ptr<CLASS>>(joint_item) {} \
         Joint(std::initializer_list<std::shared_ptr<CLASS>> list_values) : std::vector<std::shared_ptr<CLASS>>(list_values) {}                         \

@@ -44,9 +44,4 @@ int main(int argc, char **argv)
     // algorithm->initialize();
     // algorithm->solve();
 
-    auto world = SolvableByHSVI<OccupancyState<Toolbar2Backup>>(parsePOSG("tiger.posg"));
-    auto hsvi = HSVI(world, config);
-    hsvi.solve();
-    hsvi.getLowerBound().save("tigerHSVI.value");
-
 } // END main

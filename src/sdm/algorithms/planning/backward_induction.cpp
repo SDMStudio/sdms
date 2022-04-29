@@ -28,7 +28,8 @@ namespace sdm
 
         explore(start_state, 0, 0);
 
-        std::cout << "\n" << config::LOG_SDMS << "FINALE VALUE : " << bound_->getValueAt(start_state, 0);
+        std::cout << "\n"
+                  << config::LOG_SDMS << "FINALE VALUE : " << bound_->getValueAt(start_state, 0);
 
         printEndInfo();
     }
@@ -48,14 +49,21 @@ namespace sdm
 
                 // Go over all actions
                 auto action_space = getWorld()->getActionSpaceAt(state, h);
-                for (const auto &action : *action_space)
+
+                auto a_end_iter = action_space->end();
+                for (auto a_iter = action_space->begin(); !a_iter->equal(a_end_iter); a_iter = a_iter->next())
                 {
+                    auto action = a_iter->getCurrent();
+
                     resultat_backpropagation = getWorld()->getReward(state, action, h);
 
                     // Go over all observations
                     auto observation_space = getWorld()->getObservationSpaceAt(state, action, h);
-                    for (const auto &observation : *observation_space)
+                    auto obs_end_iter = observation_space->end();
+                    for (auto obs_iter = observation_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
                     {
+                        auto observation = obs_iter->getCurrent();
+
                         // Compute next state and proba
                         auto [next_state, proba] = getWorld()->getNextState(state, action, observation, h);
 

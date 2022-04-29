@@ -41,7 +41,6 @@ namespace sdm
         // create a problem with multiple variables
         std::shared_ptr<WeightedCSPSolver> wcsp_solver = std::shared_ptr<WeightedCSPSolver>(WeightedCSPSolver::makeWeightedCSPSolver(MAX_COST));
 
-
         // building variables a^i(u^i|o^i) for each agent i
         for (number agent = 0; agent < underlying_problem->getNumAgents(); ++agent)
         {
@@ -53,15 +52,17 @@ namespace sdm
         }
         // Creation of the cost network
 
-
         // Go over all joint histories
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
             std::vector<Cost> costs;
 
             // Go over all joint action
-            for (const auto &joint_action : *underlying_problem->getActionSpace(t))
+
+            auto action_end_iter = underlying_problem->getActionSpace(t)->end();
+            for (auto action_iter = underlying_problem->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
+                auto joint_action = action_iter->getCurrent();
                 costs.push_back(this->getCost(this->getWeight(value_function, occupancy_state, joint_history, joint_action, hyperplane, t)));
             }
 
@@ -95,8 +96,10 @@ namespace sdm
                     indiv_histories.push_back(indiv_history);
 
                     // Search which action is the solution
-                    for (const auto &indiv_action : *underlying_problem->getActionSpace(agent, t))
+                    auto action_end_iter = underlying_problem->getActionSpace(agent, t)->end();
+                    for (auto action_iter = underlying_problem->getActionSpace(agent, t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
                     {
+                        auto indiv_action = action_iter->getCurrent();
                         if (indiv_action == underlying_problem->getActionSpace(agent, t)->toDiscreteSpace()->getItem(sol[this->variables[this->getVarNameIndividualHistory(indiv_history, agent)]]))
                         {
                             indiv_actions.push_back(indiv_action);
@@ -108,10 +111,8 @@ namespace sdm
                 joint_histories.push_back(indiv_histories);
             }
 
-
             // Create JOint Deterministic Decision Rule
             decision_rule = std::make_shared<JointDeterministicDecisionRule>(joint_histories, actions, this->underlying_problem->getActionSpace(t));
-
 
             for (const auto &joint_history : occupancy_state->getJointHistories())
             {
@@ -153,8 +154,10 @@ namespace sdm
 
         for (const auto &joint_history : occupancy_state->getJointHistories())
         {
-            for (const auto &action : *mpomdp->getActionSpace(t))
+            auto action_end_iter = mpomdp->getActionSpace(t)->end();
+            for (auto action_iter = mpomdp->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
             {
+                auto action = action_iter->getCurrent();
                 this->max = std::max(max, this->getWeight(value_function, occupancy_state, joint_history, action, hyperplane, t));
             }
         }

@@ -120,8 +120,10 @@ namespace sdm
         // Go over serial states
         for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
         {
-            for (const auto &state : *this->getStateSpace(agent_id))
+            auto state_end_iter = this->getStateSpace(agent_id)->end();
+            for (auto state_iter = this->getStateSpace(agent_id)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
+                auto state = state_iter->getCurrent();
                 auto serial_state = state->toSerial();
 
                 auto end_iter = this->getActionSpace(agent_id)->end();

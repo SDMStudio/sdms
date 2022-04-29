@@ -131,9 +131,10 @@ namespace sdm
         con[index].setLinearCoef(var[this->getNumber(this->getVarNameWeight(0))], +1.0);
 
         // Go over all actions
-        for (const auto &u : *serial_mpomdp->getActionSpace(t))
+        auto action_end_iter = serial_mpomdp->getActionSpace(t)->end();
+        for (auto action_iter = serial_mpomdp->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            auto action = u;
+            auto action = action_iter->getCurrent();
             for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
                 //<! 1.c.4 get variable a(u|o) and set constant
@@ -205,9 +206,11 @@ namespace sdm
         expr = var[this->getNumber(this->getVarNameWeight(0))];
 
         // Go over all actions
-        for (const auto &u : *serial_mpomdp->getActionSpace(t))
+
+        auto action_end_iter = serial_mpomdp->getActionSpace(t)->end();
+        for (auto action_iter = serial_mpomdp->getActionSpace(t)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            auto action = u;
+            auto action = action_iter->getCurrent();
             for (const auto &indiv_history : compressed_occupancy_state->getIndividualHistories(agent_id))
             {
                 recover = this->getNumber(this->getVarNameIndividualHistoryDecisionRule(action, indiv_history, agent_id));

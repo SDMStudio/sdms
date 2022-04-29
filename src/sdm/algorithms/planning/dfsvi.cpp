@@ -70,23 +70,4 @@ namespace sdm
     {
         return "DepthFirstSearchVI";
     }
-
-    // void DFSVI::solve()
-    // {
-    //     do
-    //     {
-    //         max_error = -std::numeric_limits<double>::max();
-    //         value_function_1 = value_function_2->copy();
-
-    //         for (number t = horizon - 1; t >= 0; t--)
-    //         {
-    //             for (const auto &state : *selectStates(t))
-    //             {
-    //                 value_function_2->updateValueAt(state, t);
-    //                 max_error = std::max(std::abs(value_function_1->getValueAt(state, t) - value_function_2->getValueAt(state, t)), max_error);
-    //             }
-    //         }
-    //     } while !stop();
-    // }
-
 }

@@ -112,8 +112,11 @@ namespace sdm
 
         // Select next observation
         auto observation_space = getWorld()->getObservationSpaceAt(state, action, t);
-        for (const auto &observation : *observation_space)
+
+        auto obs_end_iter = observation_space->end();
+        for (auto obs_iter = observation_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto observation = obs_iter->getCurrent();
             // Get the next state and probability
             auto [next_state, transition_proba] = getWorld()->getNextStateAndProba(state, action, observation, t);
 

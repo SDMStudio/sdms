@@ -26,7 +26,7 @@ namespace sdm
                 this->md_space_ = md_space;
             }
 
-            std::shared_ptr<typename TItem::base> operator()(number a) 
+            std::shared_ptr<typename TItem::base> operator()(number a)
             {
                 return std::static_pointer_cast<DiscretePtrSpace<typename TItem::base>>(this->md_space_->getSpace(this->ag))->getItem(a);
             }
@@ -38,8 +38,7 @@ namespace sdm
             }
         };
 
-
-            struct str_visitor
+        struct str_visitor
         {
             using result_type = std::string;
 
@@ -70,8 +69,10 @@ namespace sdm
 
                 if (list_items.size() == 1 && boost::apply_visitor(str_vis, list_items[0]) == "*")
                 {
-                    for (const auto &jitem : *this->joint_item_space_)
+                    auto jitem_end_iter = this->joint_item_space_->end();
+                    for (auto jitem_iter = this->joint_item_space_->begin(); !jitem_iter->equal(jitem_end_iter); jitem_iter = jitem_iter->next())
                     {
+                        auto jitem = jitem_iter->getCurrent();
                         a_vec.push_back(jitem);
                     }
                 }
@@ -108,12 +109,12 @@ namespace sdm
                 this->space_ = space;
             }
 
-            std::vector<std::shared_ptr<typename TItem::base>> operator()(number s) 
+            std::vector<std::shared_ptr<typename TItem::base>> operator()(number s)
             {
                 return {this->space_->getItem(s)};
             }
 
-            std::vector<std::shared_ptr<typename TItem::base>> operator()(const std::string &s_str) 
+            std::vector<std::shared_ptr<typename TItem::base>> operator()(const std::string &s_str)
             {
                 std::vector<std::shared_ptr<typename TItem::base>> st_ptr;
                 if (s_str == "*")

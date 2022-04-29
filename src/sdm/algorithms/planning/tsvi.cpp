@@ -35,6 +35,7 @@ namespace sdm
         } while (!stop(initial_state, 0, 0) && (time_max >= getExecutionTime())); // Do trials until convergence
         logging();                                                                // Print execution variables in logging output streams
         printEndInfo();
+        std::cout << this->getValueFunction()->str() << std::endl;
 
     }
 

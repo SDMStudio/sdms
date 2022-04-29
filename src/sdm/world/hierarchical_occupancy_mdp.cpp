@@ -14,12 +14,12 @@ namespace sdm
         this->low_level_agent_id_ = 0;
     }
 
-    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config): BaseOccupancyMDP<HierarchicalOccupancyState>(dpomdp, config)
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(const std::shared_ptr<MPOMDPInterface> &dpomdp, Config config) : BaseOccupancyMDP<HierarchicalOccupancyState>(dpomdp, config)
     {
         this->low_level_agent_id_ = 0;
     }
 
-    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(Config config): BaseOccupancyMDP<HierarchicalOccupancyState>(config)
+    HierarchicalOccupancyMDP::HierarchicalOccupancyMDP(Config config) : BaseOccupancyMDP<HierarchicalOccupancyState>(config)
     {
         this->low_level_agent_id_ = 0;
     }
@@ -31,7 +31,7 @@ namespace sdm
 
     std::shared_ptr<ObservationSpace> HierarchicalOccupancyMDP::getObservationSpaceAt(const std::shared_ptr<State> &state, const std::shared_ptr<Action> &action, number t)
     {
-        
+
         return this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), t);
     }
 
@@ -47,8 +47,10 @@ namespace sdm
         double epsilon = std::rand() / (double(RAND_MAX));
 
         // Go over all observations of the lower-level agent
-        for (auto obs_n : *this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), this->step_))
+        auto obs_end_iter = this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), this->step_)->end();
+        for (auto obs_iter = this->getUnderlyingMPOMDP()->getObservationSpace(this->getLowLevelAgentID(), this->step_)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto obs_n = obs_iter->getCurrent();
             std::tie(candidate_state, prob) = this->getNextStateAndProba(this->current_state_, action, obs_n, this->step_);
 
             cumul += prob;

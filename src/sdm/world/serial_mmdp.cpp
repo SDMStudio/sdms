@@ -92,8 +92,10 @@ namespace sdm
 
         // The Serial state at 0 are the same state of the mmdp without the vector null of action
         // Consequently, we just take the distrubution of the mmdp to the new serial state
-        for (const auto &state : *this->getStateSpace(0))
+        auto state_end_iter = this->getStateSpace(0)->end();
+        for (auto state_iter = this->getStateSpace(0)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
         {
+            auto state = state_iter->getCurrent();
             discrete_distribution->setProbability(state, mmdp_distribution->getProbability(state->toSerial()->getHiddenState(), nullptr));
         }
         this->distribution_serial = discrete_distribution;
@@ -200,9 +202,10 @@ namespace sdm
             }
 
             // Go over all state
-
-            for (const auto &state : *this->mmdp_->getStateSpace(0))
+            auto state_end_iter = this->mmdp_->getStateSpace(0)->end();
+            for (auto state_iter = this->mmdp_->getStateSpace(0)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
+                auto state = state_iter->getCurrent();
                 // Go over all possible vector of actions
                 for (const auto &action : all_new_action)
                 {
@@ -227,9 +230,11 @@ namespace sdm
 
         // Create the vector of joint action and the pointer associated
         std::vector<JointAction> vector_joint_action;
-        for (const auto &element : *this->mmdp_->getActionSpace(0))
+
+        auto action_end_iter = this->mmdp_->getActionSpace(0)->end();
+        for (auto action_iter = this->mmdp_->getActionSpace(0)->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
         {
-            auto joint_action = std::static_pointer_cast<JointAction>(element);
+            auto joint_action = std::static_pointer_cast<JointAction>(action_iter->getCurrent());
             std::shared_ptr<Action> jaction = joint_action;
             this->map_joint_action_to_pointeur[*joint_action] = jaction;
         }
@@ -244,9 +249,10 @@ namespace sdm
         for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
         {
             // GO over all state
-            for (const auto &state : *this->getStateSpace(agent_id))
+            auto state_end_iter = this->getStateSpace(agent_id)->end();
+            for (auto state_iter = this->getStateSpace(agent_id)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                auto serial_state = state->toSerial();
+                auto serial_state = state_iter->getCurrent()->toSerial();
                 auto hidden_state = serial_state->getHiddenState();
                 auto action = serial_state->getAction();
 
@@ -336,8 +342,10 @@ namespace sdm
         double epsilon = std::rand() / (double(RAND_MAX));
 
         // Go over all observations of the lower-level agent
-        for (const auto &next_state : *this->getStateSpace(this->current_timestep_ + 1))
+        auto state_end_iter = this->getStateSpace(this->current_timestep_ + 1)->end();
+        for (auto state_iter = this->getStateSpace(this->current_timestep_ + 1)->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
         {
+            auto next_state = state_iter->getCurrent();
             proba = this->getTransitionProbability(this->getInternalState(), serial_action, next_state, this->current_timestep_);
 
             cumul += proba;

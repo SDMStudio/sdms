@@ -264,8 +264,11 @@ namespace sdm
                 std::cout << "Belief" << std::endl;
                 auto start_distribution_tmp = std::make_shared<DiscreteDistribution<std::shared_ptr<State>>>();
                 intermediate.clear();
-                for (const auto &state : *this->state_space_)
+
+                auto state_end_iter = this->state_space_->end();
+                for (auto state_iter = this->state_space_->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
                 {
+                    auto state = state_iter->getCurrent();
                     std::getline(input_file, line);
                     start_distribution_tmp->setProbability(state, std::stod(line));
                 }
@@ -310,8 +313,11 @@ namespace sdm
                 std::cout << "End Reward" << std::endl;
 
                 auto reward_fct = std::make_shared<CooperativeRewardModel>();
-                for (const auto &state : *this->getStateSpace())
+
+                auto state_end_iter = this->state_space_->end();
+                for (auto state_iter = this->state_space_->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
                 {
+                    auto state = state_iter->getCurrent();
                     number idx_state = this->getStateSpace()->toDiscreteSpace()->getItemIndex(state);
                     auto begin_iter = this->getActionSpace()->begin();
                     auto end_iter = this->getActionSpace()->end();

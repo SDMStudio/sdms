@@ -50,12 +50,18 @@ namespace sdm
                 res << std::static_pointer_cast<DiscreteActionSpace>(action_space->getSpace(ag))->getNumItems() << "\n";
             }
 
-            for (const auto &state : *state_space)
+            auto state_end_iter = state_space->end();
+            for (auto state_iter = state_space->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                for (const auto &action : *action_space)
+                auto state = state_iter->getCurrent();
+                auto action_end_iter = action_space->end();
+                for (auto action_iter = action_space->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
                 {
-                    for (const auto &next_state : *state_space)
+                    auto action = action_iter->getCurrent();
+                    auto next_state_end_iter = state_space->end();
+                    for (auto next_state_iter = state_space->begin(); !next_state_iter->equal(next_state_end_iter); next_state_iter = next_state_iter->next())
                     {
+                        auto next_state = next_state_iter->getCurrent();
 
                         res << "T: ";
                         for (number agent = 0; agent < n_agents; ++agent)
@@ -71,10 +77,15 @@ namespace sdm
                 }
             }
 
-            for (const auto &state : *state_space)
+            state_end_iter = state_space->end();
+            for (auto state_iter = state_space->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
-                for (const auto &action : *action_space)
+                auto state = state_iter->getCurrent();
+                auto action_end_iter = action_space->end();
+                for (auto action_iter = action_space->begin(); !action_iter->equal(action_end_iter); action_iter = action_iter->next())
                 {
+                    auto action = action_iter->getCurrent();
+                    
                     res << "R: ";
                     for (number agent = 0; agent < n_agents; ++agent)
                     {

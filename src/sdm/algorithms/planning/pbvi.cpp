@@ -29,8 +29,10 @@ namespace sdm
 
         // Go over all observations of the lower-level agent
         auto obs_space = getWorld()->getObservationSpaceAt(state, sampled_action, t);
-        for (auto obs_n : *obs_space)
+        auto obs_end_iter = obs_space->end();
+        for (auto obs_iter = obs_space->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto obs_n = obs_iter->getCurrent();
             std::tie(candidate_state, proba) = getWorld()->getNextStateAndProba(state, sampled_action, obs_n, t);
 
             cumul += proba;

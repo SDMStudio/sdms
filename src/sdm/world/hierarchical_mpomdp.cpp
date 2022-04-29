@@ -76,8 +76,10 @@ namespace sdm
         }
 
         // For all joint observations
-        for (const auto &joint_observation : *this->mpomdp_->getObservationSpace(0))
+        auto obs_end_iter = this->mpomdp_->getObservationSpace(0)->end();
+        for (auto obs_iter = this->mpomdp_->getObservationSpace(0)->begin(); !obs_iter->equal(obs_end_iter); obs_iter = obs_iter->next())
         {
+            auto joint_observation = std::static_pointer_cast<JointObservation>(obs_iter->getCurrent());
             // Instanciate new joint observation
             auto joint_hierarchical_observation = std::make_shared<JointObservation>();
             // Instanciate temporary joint observation of agent 0:i
@@ -85,7 +87,7 @@ namespace sdm
             for (number agent_id = 0; agent_id < this->getNumAgents(); agent_id++)
             {
                 // Get observation of agent i
-                auto indiv_observation = std::static_pointer_cast<JointObservation>(joint_observation)->get(agent_id);
+                auto indiv_observation = joint_observation->get(agent_id);
                 // Add it to the temporary structure
                 tmp.push_back(indiv_observation);
                 if (map_new_obs_to_ptr.at(agent_id).find(tmp) == map_new_obs_to_ptr.at(agent_id).end())

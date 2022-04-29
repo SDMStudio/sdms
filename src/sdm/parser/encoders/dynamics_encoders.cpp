@@ -26,6 +26,7 @@ namespace sdm
             matrix_encoder m_encoder(this->state_space_->getNumItems(), this->state_space_->getNumItems());
             std::shared_ptr<MappedMatrix<number, number>> matrix_proba = boost::apply_visitor(m_encoder, t3.transitions);
 
+
             for (const auto &u : u_space)
             {
                 for (const auto &pair_state_vector : *matrix_proba)

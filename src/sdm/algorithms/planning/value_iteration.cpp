@@ -71,8 +71,10 @@ namespace sdm
     {
         // Select next states
         auto state_space = this->selectStates(t);
-        for (const auto &state : *state_space)
+        auto s_end_iter = state_space->end();
+        for (auto s_iter = state_space->begin(); !s_iter->equal(s_end_iter); s_iter = s_iter->next())
         {
+            auto state = s_iter->getCurrent();
             // Update the value function (backward update)
             this->updateValue(state, t);
         }

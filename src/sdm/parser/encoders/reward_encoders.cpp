@@ -44,8 +44,10 @@ namespace sdm
             joint_item_encoder<StringAction> ja_encoder(this->action_space_, this->ag_space_);
             auto joint_actions = ja_encoder.encode(r2.jaction);
 
-            for (auto &state : *this->state_space_)
+            auto state_end_iter = this->state_space_->end();
+            for (auto state_iter = this->state_space_->begin(); !state_iter->equal(state_end_iter); state_iter = state_iter->next())
             {
+                auto state = state_iter->getCurrent();
                 for (auto &joint_action : joint_actions)
                 {
                     this->rewards_->setReward(state, joint_action, 0,
