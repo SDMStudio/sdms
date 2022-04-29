@@ -124,21 +124,21 @@ then
   
     if [ "${machine}" == "Linux" ]; then
         echo -e "${LOG_SDMS}Modify environment variable PATH."
-        export PATH="${INSTALL_PREFIX}/bin:"'$PATH'
+        export PATH="${INSTALL_PREFIX}/bin:$PATH"
         echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bash_profile
 
         echo -e "${LOG_SDMS}Modify environment variable LD_LIBRARY_PATH."
-        export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH'
+        export LD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$LD_LIBRARY_PATH"
         echo "export LD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$LD_LIBRARY_PATH' >> ~/.bash_profile
 
         source ~/.bash_profile
     else   
         echo -e "${LOG_SDMS}Modify environment variable PATH."
-        export PATH="${INSTALL_PREFIX}/bin:"'$PATH'
+        export PATH="${INSTALL_PREFIX}/bin:$PATH"
         echo "export PATH=${INSTALL_PREFIX}/bin:"'$PATH' >> ~/.bash_profile
 
         echo -e "${LOG_SDMS}Modify environment variable DYLD_LIBRARY_PATH."
-        export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH'
+        export DYLD_LIBRARY_PATH="${INSTALL_PREFIX}/lib:$DYLD_LIBRARY_PATH"
         echo "export DYLD_LIBRARY_PATH=${INSTALL_PREFIX}/lib:"'$DYLD_LIBRARY_PATH' >> ~/.bash_profile
         
         source ~/.bash_profile
