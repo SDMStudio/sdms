@@ -75,7 +75,7 @@ then
         declare -a list_dependencies=( "libboost-all-dev" "libfmt-dev" "libgmp-dev" "zlib1g-dev" "liblzma-dev" "wget" "unzip" "cmake" "clang" )
     else   
         echo -e "${LOG_SDMS}Starting installation on Mac OS X platform"
-        declare -a list_dependencies=( "boost" "fmt" "gmp" "zlib" "unzip" "wget" "cmake" "clang" )
+        declare -a list_dependencies=( "boost" "fmt" "gmp" "zlib" "unzip" "wget" "cmake" "llvm" )
     fi
  
     echo -e "${LOG_SDMS}Install dependencies"

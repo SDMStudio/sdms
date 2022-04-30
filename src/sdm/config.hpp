@@ -40,7 +40,7 @@ namespace sdm
         // --------------------------------------------------
 
         /** @brief Path to the directory where problems are stored. */
-        const std::string INSTALL_PREFIX = "~/.sdms";
+        const std::string INSTALL_PREFIX = "$HOME/.sdms";
 
         /** @brief Path to the directory where problems are stored. */
         const std::string PROBLEM_PATH = INSTALL_PREFIX + "/share/sdms/world/";
